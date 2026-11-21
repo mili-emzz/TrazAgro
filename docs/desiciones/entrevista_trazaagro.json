@@ -1,0 +1,317 @@
+{
+  "proyecto": "TrazaAgro",
+  "rol_entrevistado": "Responsable de Aseguramiento de Calidad e Inocuidad (QA)",
+  "producto_caso_estudio": "Aguacate Hass",
+  "contexto_empresa": {
+    "productores_activos": 60,
+    "productores_temporada_alta": 80,
+    "camiones_por_dia": { "min": 15, "max": 25 },
+    "tipos_de_producto": 120,
+    "laboratorios_externos": 3,
+    "centros_distribucion": 2,
+    "tiendas_y_restaurantes": 300,
+    "equipo_qa": 4,
+    "herramientas_actuales": ["Excel", "correo", "WhatsApp", "facturas en papel o PDF"],
+    "tiempo_rastreo_actual": "medio dia o mas"
+  },
+  "entrevista": {
+    "2_empresa_y_producto": {
+      "p1_producto_principal": {
+        "producto": "Aguacate Hass",
+        "razones": [
+          "Cerca de una cuarta parte del volumen que entra",
+          "Muchos clientes",
+          "Madura rapido y es sensible a la temperatura",
+          "Clientes de exportacion y cadenas grandes piden analisis de residuos"
+        ]
+      },
+      "p2_volumenes": {
+        "productores_aguacate": 25,
+        "lotes_mes_empresa": 1000,
+        "lotes_mes_aguacate": 250,
+        "clientes_totales": 300,
+        "clientes_aguacate": 200
+      },
+      "p3_cadena_completa": [
+        "Cosecha en parcela (cuadrilla)",
+        "Empaque (en huerta o empacadora externa)",
+        "Carga y traslado al CEDIS",
+        "Recepcion e inspeccion en CEDIS",
+        "Almacenamiento en cuarto frio",
+        "Surtido de pedidos",
+        "Transporte a tienda o restaurante",
+        "Recepcion en tienda y venta"
+      ],
+      "p4_problema_mas_costoso": {
+        "caso": "Un cliente de cadena hizo su propio analisis y encontro un plaguicida arriba del limite en aguacate entregado. Eran cuatro dias de producto, buena parte ya vendida. Se tardo medio dia en saber productor, parcelas y tiendas.",
+        "costo_estimado_mxn": { "min": 250000, "max": 400000 },
+        "riesgo_adicional": "Salir de la lista de proveedores del cliente",
+        "nota": "No se conoce la cifra exacta"
+      },
+      "p5_rastreo_actual": {
+        "herramientas": ["Excel por producto", "correos con productor", "WhatsApp con choferes y CEDIS", "facturas en papel o PDF"],
+        "tiempo": "medio dia, a veces mas",
+        "fallas": [
+          "Codigos de lote capturados distinto por cada persona",
+          "Cuando el lote se mezclo en bodega se pierde el hilo",
+          "Fotos y documentos viven en el celular de alguien"
+        ]
+      },
+      "p6_metas_medibles": [
+        "Ubicar un lote (origen y destino) en menos de 15 minutos (hoy unas 4 horas)",
+        "Lista de tiendas afectadas en menos de 30 minutos",
+        "100% de lotes nuevos con analisis y documentos ligados antes de despacharse",
+        "Cero lotes bloqueados que salgan por error"
+      ]
+    },
+    "3_actores_y_permisos": {
+      "p7_actores": [
+        "Productor", "Cuadrilla/empacadora", "Transportista", "Recepcion del CEDIS", "Almacen",
+        "QA", "Laboratorio", "Ventas/logistica", "Tienda o restaurante", "Gerencia", "Autoridades/auditores"
+      ],
+      "p8_permisos_por_actor": [
+        { "actor": "Productor", "registra": ["Cosecha", "Parcela", "Aplicaciones", "Cantidades"], "consulta": ["Sus lotes", "Sus resultados"], "no_debe_ver_ni_modificar": ["Datos de otros productores", "Precios"] },
+        { "actor": "Empacadora", "registra": ["Empaque", "Cantidades", "Division de lotes"], "consulta": ["Sus lotes"], "no_debe_ver_ni_modificar": ["Resultados de otros", "Clientes finales"] },
+        { "actor": "Transportista", "registra": ["Salida", "Llegada", "Temperatura"], "consulta": ["Sus envios"], "no_debe_ver_ni_modificar": ["Contenido de analisis", "Precios"] },
+        { "actor": "Recepcion CEDIS", "registra": ["Llegada", "Temperatura", "Cantidad", "Rechazos"], "consulta": ["Envios esperados"], "no_debe_ver_ni_modificar": ["Cambiar resultados de laboratorio"] },
+        { "actor": "Almacen", "registra": ["Ubicacion", "Surtido", "Despacho"], "consulta": ["Inventario por lote"], "no_debe_ver_ni_modificar": ["Liberar o desbloquear lotes"] },
+        { "actor": "QA", "registra": ["Inspecciones", "Bloqueos", "Incidentes"], "consulta": ["Todo"], "no_debe_ver_ni_modificar": ["Borrar historial"] },
+        { "actor": "Laboratorio", "registra": ["Resultados"], "consulta": ["Solo sus muestras"], "no_debe_ver_ni_modificar": ["Todo lo demas"] },
+        { "actor": "Tienda", "registra": ["Recepcion", "Quejas"], "consulta": ["Lo que recibio"], "no_debe_ver_ni_modificar": ["Origen detallado del productor"] },
+        { "actor": "Gerencia", "registra": ["Cierre de incidentes"], "consulta": ["Reportes"], "no_debe_ver_ni_modificar": ["Editar registros"] }
+      ],
+      "p9_quien_libera_o_bloquea": {
+        "bloquear": "QA (responsable o analista) de inmediato, sin pedir permiso",
+        "liberar": "Solo la responsable de QA o su suplente, con evidencia",
+        "retiro_formal_a_clientes": "Lo aprueba ademas la gerencia general"
+      },
+      "p10_externos": {
+        "autoridades": "Piden origen, destinos y analisis",
+        "auditores_certificacion": "Ven procesos y muestras de registros",
+        "clientes": "Reciben certificados y, en un retiro, la alerta",
+        "regla": "No se dan nombres de productores a clientes salvo que el contrato lo pida",
+        "verificar": "No se sabe con exactitud que obliga la ley a entregar en cada caso"
+      },
+      "p11_informacion_confidencial": [
+        { "dato": "Precios y condiciones comerciales", "quien_ve": ["Ventas", "Gerencia"] },
+        { "dato": "Identidad de productores", "quien_ve": ["QA", "Compras"] },
+        { "dato": "Resultados de laboratorio", "quien_ve": ["QA", "El productor propio", "Gerencia"] }
+      ]
+    },
+    "4_operacion_diaria": {
+      "p12_flujo_del_lote": ["Cosecha", "Empaque", "Carga", "Traslado", "Recepcion", "Inspeccion", "Almacenamiento", "Liberacion", "Surtido y despacho", "Entrega en tienda", "Venta"],
+      "p13_datos_por_evento": {
+        "cosecha": ["fecha", "parcela", "productor", "cuadrilla", "cantidad"],
+        "empaque": ["fecha y hora", "cantidad de cajas", "quien empaco"],
+        "traslado": ["placas", "chofer", "hora de salida", "hora de llegada", "temperatura"],
+        "recepcion": ["cantidad real", "temperatura", "estado del producto", "fotos", "quien recibio"],
+        "almacen": ["cuarto", "posicion"],
+        "despacho": ["destino", "cantidad", "hora"]
+      },
+      "p14_division_y_mezcla": {
+        "division": "Constante; un lote de 2 toneladas puede dividirse en 8 a 12 envios a tiendas",
+        "mezcla": "A veces en el CEDIS se completa un pedido con cajas de dos productores; en teoria cada caja conserva su lote pero en la practica a veces se pierde",
+        "frecuencia_mezcla": "Pasa cada semana; no se sabe el porcentaje"
+      },
+      "p15_identificacion_del_lote": {
+        "formato_ejemplo": "AGU-P014-260312-01",
+        "composicion": ["producto", "productor", "fecha", "consecutivo"],
+        "quien_asigna": "Empacadora o productor; el CEDIS agrega su propio codigo interno",
+        "repeticion_o_error": "Se repite o se captura mal 2 o 3 veces al mes"
+      },
+      "p16_estados_del_lote": {
+        "estados": ["Cosechado", "Empacado", "En transito", "Recibido", "En revision", "Liberado", "Despachado", "Bloqueado", "Retirado", "Cerrado"],
+        "quien_cambia": {
+          "Empacado": "Productor o empacadora",
+          "En transito": "Chofer",
+          "Recibido": "Recepcion",
+          "Liberado": "QA",
+          "Bloqueado": "QA",
+          "Retirado": "QA",
+          "Despachado": "Almacen"
+        }
+      },
+      "p17_excepciones_de_envio": {
+        "incompleto": "Se registra lo recibido y se reclama la diferencia al productor o transportista",
+        "tarde": "Si pasa de 6 horas del tiempo esperado, QA revisa antes de aceptar",
+        "temperatura_fuera_de_rango": "Se retiene y QA decide: aceptar, vender rapido a menor precio o rechazar",
+        "caso_raro": "En temporada alta a veces se acepta con autorizacion verbal que no queda registrada (problema)"
+      },
+      "p18_reportes": {
+        "semanal": ["Rechazos por productor", "Temperaturas fuera de rango", "Analisis pendientes"],
+        "mensual": ["Incidentes", "Devoluciones por tienda", "Desempeno por productor y por laboratorio"],
+        "fin": "Decidir a quien auditar o suspender"
+      }
+    },
+    "5_documentos_y_analisis": {
+      "p19_documentos_por_lote": ["Certificado fitosanitario o de origen", "Analisis de laboratorio (residuos, microbiologia)", "Bitacora de cosecha y aplicaciones", "Factura/remision", "Bitacora de temperatura del transporte", "Certificaciones del productor (con vigencia)"],
+      "p20_analisis_por_producto": [
+        { "producto": "Aguacate", "analisis": ["Residuos de plaguicidas", "Materia seca (madurez), a veces"] },
+        { "producto": "Lechuga/hojas verdes", "analisis": ["Microbiologia (Salmonella, E. coli, Listeria)", "Residuos"] },
+        { "producto": "Fresa", "analisis": ["Residuos (muchos parametros)", "Pruebas de higiene"] }
+      ],
+      "p21_datos_que_varian": ["Parametros analizados", "Unidades (mg/kg vs ppm)", "Formato del reporte de cada laboratorio (PDF, Excel, foto)", "Limites aceptables segun cliente o destino", "Certificaciones de cada productor"],
+      "p22_informacion_anidada": {
+        "analisis": "Varias muestras; cada una con 40 a 200 parametros, cada parametro con resultado, unidad y limite",
+        "productor": "Varias parcelas; cada parcela varias aplicaciones de agroquimicos"
+      },
+      "p23_conservacion": {
+        "plazo_interno": "3 anios",
+        "norma": "No se sabe cuanto exige la norma; debe verificarse",
+        "quien_reemplaza": "Solo QA, y debe quedar registro de quien y por que (hoy no siempre ocurre)"
+      },
+      "p24_versiones": "Los laboratorios emiten correcciones y los productores renuevan certificados. Hoy a veces se pierde el archivo anterior. Lo correcto: conservar ambas versiones y saber cual es la vigente."
+    },
+    "6_rastreo_y_relaciones": {
+      "p25_preguntas_inmediatas": ["De que productor y parcelas viene", "Que otros lotes comparten origen, fecha, camion o empacadora", "Cuanto se desapacho, a que tiendas y cuanto queda en inventario", "Hay analisis o incidentes previos de ese productor"],
+      "p26_prioridad": "Hacia adelante es lo mas urgente (sacar el producto del anaquel antes de que se consuma); hacia atras sirve para causa y proteger otros lotes, en paralelo.",
+      "p27_niveles": { "normal": 4, "cadena_tipica": "productor > empacadora > CEDIS > tienda", "maximo": "6 o 7 (acopiador intermedio o segundo CEDIS que redistribuye)" },
+      "p28_conexiones_indirectas": ["Mismo camion o transportista", "Misma empacadora", "Misma fecha de cosecha", "Mismo cuarto frio", "Mismo laboratorio", "Misma cuadrilla"],
+      "p29_caso_relacion_revelo_causa": "Tres tiendas reportaron fruta con mal sabor; venian de productores distintos pero todos pasaron por el mismo camion, que habia llevado otra carga sin lavar.",
+      "p30_velocidad_requerida": { "meta": "Lista de tiendas afectadas en menos de 30 minutos", "riesgo_si_tarda": "El producto sigue vendiendose; posibles consumidores enfermos y dano de marca" }
+    },
+    "7_incidentes_y_retiros": {
+      "p31_declarar_lote_sospechoso": ["Llega el aviso (laboratorio, cliente, queja, inspeccion)", "QA evalua en maximo 1 hora si es creible", "Si lo es, QA bloquea el lote de inmediato", "Se informa a gerencia, que aprueba si hay retiro formal"],
+      "p32_al_bloquear": ["Se bloquean lotes relacionados (mismo origen y fecha) hasta evaluarlos", "Se detienen los envios en camino", "Se avisa a tiendas para sacar y separar el producto (sin destruirlo, es evidencia)"],
+      "p33_alerta_de_retiro": {
+        "contenido": ["Producto", "Lote(s)", "Fechas", "Motivo en palabras simples", "Que hacer (retirar, separar, no vender)", "Contacto de QA", "Formato para confirmar cantidades"],
+        "medios": ["Correo", "Llamada a responsables de tienda", "WhatsApp (no ideal por falta de constancia)"],
+        "orden": "Los CEDIS se notifican primero"
+      },
+      "p34_cierre_de_incidente": { "condiciones": ["Todo el producto ubicado y retirado", "Resultado de la investigacion", "Causa documentada", "Acciones correctivas"], "firman": ["QA", "Gerencia"], "duracion_tipica": "1 a 3 semanas" },
+      "p35_evidencia": ["Linea de tiempo del incidente", "Listas de lotes y tiendas", "Analisis", "Fotos", "Comunicaciones enviadas y confirmaciones", "Destino final del producto retirado", "Acciones correctivas"]
+    },
+    "8_reglas_y_restricciones": {
+      "p36_reglas_inquebrantables": ["No se despacha un lote bloqueado o sin analisis liberado", "No se envia mas cantidad de la disponible", "Un lote no se libera sin aprobacion de QA", "Un resultado de laboratorio no se borra, solo se corrige dejando constancia", "No se acepta un lote sin productor ni fecha identificados"],
+      "p37_obligatorios_y_opcionales": {
+        "obligatorios": ["Productor", "Producto", "Fecha de cosecha", "Cantidad", "Responsable", "Destino"],
+        "opcionales": ["Fotos", "Comentarios", "Parcela exacta (deberia ser obligatoria; hoy a veces no se tiene)"]
+      },
+      "p38_todo_o_nada": ["Registrar un envio y descontar inventario", "Dividir un lote en varios envios", "Bloquear un lote junto con los relacionados"],
+      "p39_borrar_vs_archivar": "Casi nada se borra. Productores, tiendas y lotes solo se marcan inactivos. Solo un registro capturado por error puede borrarse, dejando constancia.",
+      "p40_limites": {
+        "aguacate_cuarto_frio_c": { "min": 5, "max": 7 },
+        "aguacate_transito_max_horas_desde_empaque": 24,
+        "nota": "No se saben las cifras exactas de todos los productos; validar con el area tecnica"
+      },
+      "p41_normas": {
+        "mencionadas": ["SENASICA", "COFEPRIS", "NOM-251 (buenas practicas de higiene)", "Reglas de trazabilidad de la FDA para exportacion a EE. UU."],
+        "advertencia": "Todo debe verificarse con el area legal"
+      }
+    },
+    "9_uso_calidad_y_alcance": {
+      "p42_usuarios_y_dispositivos": [
+        { "lugar": "Oficina", "usuarios": ["QA", "Gerencia"], "dispositivo": "Computadora" },
+        { "lugar": "Bodega y recepcion", "usuarios": ["Recepcion", "Almacen"], "dispositivo": "Celular o tableta", "condiciones": "Manos ocupadas y poca senal" },
+        { "lugar": "Campo", "usuarios": ["Productores"], "dispositivo": "Celular", "condiciones": "A veces sin internet" },
+        { "lugar": "Ruta", "usuarios": ["Choferes"], "dispositivo": "Celular" }
+      ],
+      "p43_rapidez": { "normal": "Guardar un registro en 2 o 3 segundos", "emergencia": "Consultas de rastreo en segundos, no minutos" },
+      "p44_si_falla_en_retiro": { "no_puede_perderse": ["Lista de lotes bloqueados", "Tiendas notificadas", "Confirmaciones"], "plan_emergencia": "Exportar la lista rapido (aunque sea a Excel)" },
+      "p45_capacidad": { "usuarios_simultaneos": { "min": 30, "max": 40 }, "registros_por_dia": { "min": 1500, "max": 3000 }, "nota": "Estimacion; no se sabe con precision" },
+      "p46_fuera_de_v1": ["Facturacion", "Pagos", "Sensores automaticos de temperatura", "Integracion con sistema contable", "Predicciones", "App para el cliente final"],
+      "p47_cinco_funciones_v1": ["Registrar lotes con identificador unico", "Registrar recepcion y movimientos (con temperatura)", "Guardar analisis y documentos ligados al lote", "Rastrear hacia atras y hacia adelante con una consulta", "Bloquear lotes y generar lista de tiendas a notificar"],
+      "p48_escenario_demo": "Entra un lote de aguacate P014 (2,000 kg) que se divide en 10 envios. Llega un analisis con plaguicida fuera de limite. QA bloquea el lote y el sistema muestra en segundos las parcelas de origen, otros lotes con mismo origen o camion, y la lista de 10 tiendas con cantidades. Al intentar despachar un envio bloqueado, el sistema no lo permite.",
+      "p49_riesgos": ["Operadores que no capturan en el momento por prisa o falta de senal", "Resistencia de productores pequenos con poca tecnologia", "Mala calidad de datos historicos en Excel", "Sistema complicado que haga volver al WhatsApp en una emergencia", "Desconocimiento de cuanto aguantaria la operacion si el sistema cae en temporada alta"]
+    }
+  },
+  "resumen_final": {
+    "actores": {
+      "ver": "entrevista.3_actores_y_permisos.p8_permisos_por_actor",
+      "adicionales": [
+        { "actor": "Auditor/autoridad", "permiso": "Solo lectura de lo que se le asigne" },
+        { "actor": "Administrador del sistema", "permiso": "Gestiona usuarios; no modifica registros de calidad" }
+      ]
+    },
+    "requerimientos_funcionales": [
+      { "id": "RF-01", "actor": "Empacadora", "accion": "Registrar un lote", "resultado": "Lote con codigo unico", "criterio_aceptacion": "No permite codigos repetidos" },
+      { "id": "RF-02", "actor": "Transportista", "accion": "Registrar salida, llegada y temperatura", "resultado": "Historial del traslado", "criterio_aceptacion": "Cada envio tiene hora y temperatura" },
+      { "id": "RF-03", "actor": "Recepcion", "accion": "Registrar recepcion con cantidad real", "resultado": "Diferencias visibles", "criterio_aceptacion": "Alerta si la cantidad difiere mas de 2%" },
+      { "id": "RF-04", "actor": "Recepcion", "accion": "Registrar temperatura al llegar", "resultado": "Producto retenido si esta fuera de rango", "criterio_aceptacion": "Lote pasa a En revision" },
+      { "id": "RF-05", "actor": "Laboratorio / QA", "accion": "Cargar un analisis ligado a un lote", "resultado": "Resultado asociado", "criterio_aceptacion": "Se conserva la version anterior" },
+      { "id": "RF-06", "actor": "QA", "accion": "Liberar o bloquear un lote", "resultado": "Estado actualizado", "criterio_aceptacion": "Solo QA puede liberar; queda registro" },
+      { "id": "RF-07", "actor": "QA", "accion": "Bloquear lote y relacionados", "resultado": "Todos quedan bloqueados", "criterio_aceptacion": "Una sola accion; consistente" },
+      { "id": "RF-08", "actor": "Almacen", "accion": "Dividir un lote en envios", "resultado": "Cada envio conserva el lote origen", "criterio_aceptacion": "Suma de envios <= cantidad disponible" },
+      { "id": "RF-09", "actor": "QA", "accion": "Rastrear hacia atras", "resultado": "Productor, parcelas y lotes con mismo origen", "criterio_aceptacion": "Respuesta en menos de 1 minuto" },
+      { "id": "RF-10", "actor": "QA", "accion": "Rastrear hacia adelante", "resultado": "Lista de tiendas y cantidades", "criterio_aceptacion": "Respuesta en menos de 1 minuto" },
+      { "id": "RF-11", "actor": "QA", "accion": "Generar y enviar alerta de retiro", "resultado": "Tiendas notificadas", "criterio_aceptacion": "Se registran las confirmaciones" },
+      { "id": "RF-12", "actor": "QA / Gerencia", "accion": "Cerrar incidente", "resultado": "Incidente con evidencias", "criterio_aceptacion": "No cierra sin causa ni acciones" },
+      { "id": "RF-13", "actor": "Gerencia", "accion": "Consultar reportes", "resultado": "Rechazos, temperaturas e incidentes", "criterio_aceptacion": "Filtrable por productor y periodo" },
+      { "id": "RF-14", "actor": "Auditor", "accion": "Consultar historial de un lote", "resultado": "Linea de tiempo completa", "criterio_aceptacion": "Solo lectura" }
+    ],
+    "entidades_y_datos_clave": [
+      { "entidad": "Productor", "atributos": ["nombre", "parcelas", "certificaciones", "vigencia", "estado"] },
+      { "entidad": "Parcela", "atributos": ["ubicacion", "productor", "cultivo", "aplicaciones"] },
+      { "entidad": "Lote", "atributos": ["codigo", "producto", "productor", "fecha de cosecha", "cantidad", "estado"] },
+      { "entidad": "Envio", "atributos": ["lotes", "origen", "destino", "transportista", "horas", "temperatura", "cantidad"] },
+      { "entidad": "Recepcion", "atributos": ["envio", "cantidad real", "temperatura", "fotos", "responsable"] },
+      { "entidad": "Tienda/cliente", "atributos": ["nombre", "ubicacion", "contacto"] },
+      { "entidad": "Analisis", "atributos": ["laboratorio", "lote", "fecha", "muestras", "parametros", "resultado", "version"] },
+      { "entidad": "Incidente", "atributos": ["motivo", "fecha", "lotes", "decisiones", "evidencias", "estado"] },
+      { "entidad": "Transportista / vehiculo", "atributos": [] },
+      { "entidad": "CEDIS", "atributos": [] },
+      { "entidad": "Usuario", "atributos": [] }
+    ],
+    "reglas_de_negocio": [
+      { "id": "RN-01", "regla": "No se despacha un lote bloqueado" },
+      { "id": "RN-02", "regla": "No se despacha sin analisis liberado" },
+      { "id": "RN-03", "regla": "No se envia mas de lo disponible" },
+      { "id": "RN-04", "regla": "Solo QA libera o desbloquea" },
+      { "id": "RN-05", "regla": "Resultados de laboratorio no se borran; se corrigen con version" },
+      { "id": "RN-06", "regla": "Todo lote debe tener productor, producto, fecha y cantidad" },
+      { "id": "RN-07", "regla": "Un lote con temperatura fuera de rango pasa a revision" },
+      { "id": "RN-08", "regla": "Al bloquear un lote se bloquean los relacionados hasta evaluarlos" },
+      { "id": "RN-09", "regla": "Un incidente no cierra sin causa y acciones documentadas" },
+      { "id": "RN-10", "regla": "Productores, tiendas y lotes se inactivan, no se borran" },
+      { "id": "RN-11", "regla": "Cada productor solo ve su informacion" }
+    ],
+    "estados_y_transiciones": {
+      "flujo_normal": ["Cosechado", "Empacado", "En transito", "Recibido", "En revision", "Liberado", "Despachado", "Cerrado"],
+      "transiciones_especiales": [
+        { "desde": ["Recibido", "En revision", "Liberado"], "hacia": "Bloqueado", "por": "QA" },
+        { "desde": "Bloqueado", "hacia": "Liberado", "condicion": "Se descarta el problema" },
+        { "desde": "Bloqueado", "hacia": "Retirado", "condicion": "Se confirma el problema" },
+        { "desde": "Recepcion", "hacia": "Rechazado", "condicion": "Falla en recepcion" }
+      ]
+    },
+    "preguntas_de_rastreo": [
+      "De que parcelas y productor vino el lote X",
+      "Que otros lotes comparten productor, fecha, camion, empacadora o cuarto frio",
+      "A que tiendas llego, en que cantidad y cuanto queda",
+      "Que lotes de ese productor han tenido incidentes",
+      "Que transportista o laboratorio aparece en varios lotes afectados"
+    ],
+    "datos_variables_o_anidados": [
+      "Los analisis cambian por producto (parametros, unidades, formato por laboratorio)",
+      "Un analisis contiene varias muestras y cada muestra varios parametros",
+      "Un productor tiene parcelas y aplicaciones",
+      "Certificaciones y documentos varian por productor",
+      "Los documentos tienen versiones"
+    ],
+    "operaciones_criticas_consistentes": [
+      "Registrar un envio y descontar inventario",
+      "Dividir un lote en varios envios",
+      "Bloquear un lote y los relacionados",
+      "Cambios de estado ligados a su registro de quien y cuando"
+    ],
+    "requerimientos_no_funcionales": {
+      "rendimiento": "Guardar en 2 a 3 s; consultas de rastreo en segundos",
+      "seguridad": "Permisos por actor, historial de cambios, datos sensibles protegidos",
+      "disponibilidad": "Alta en horario operativo y temporada alta; exportacion de emergencia",
+      "uso": "Celular y tableta en bodega y campo; captura simple y capacidad de funcionar con mala senal",
+      "capacidad": "30 a 40 usuarios simultaneos y hasta 3,000 registros diarios"
+    },
+    "alcance": {
+      "si_v1": ["Lotes", "Recepcion", "Analisis", "Estados", "Bloqueo", "Rastreo en ambas direcciones", "Lista de tiendas", "Alerta basica", "Reportes sencillos"],
+      "despues": ["Captura sin internet mas robusta", "Integraciones con ERP", "Sensores de temperatura", "Notificaciones automaticas avanzadas"],
+      "no": ["Facturacion", "Pagos", "App para consumidor", "Predicciones"]
+    },
+    "escenario_demo": "Lote P014 de 2,000 kg dividido en 10 envios, analisis fuera de limite, bloqueo, rastreo atras y adelante en segundos, lista de 10 tiendas, intento de despacho rechazado y cierre del incidente con evidencia.",
+    "supuestos_y_lagunas": {
+      "no_se": ["Porcentaje real de mezclas de lotes", "Registros diarios exactos", "Costo total de un retiro"],
+      "debe_verificarse": ["Normas legales y tiempos de conservacion de documentos", "Que informacion debe darse a autoridades", "Rangos exactos de temperatura por producto"],
+      "depende": ["Que se entrega al cliente sobre el productor (por contrato)", "Que se hace con un lote fuera de temperatura (segun estado del producto)"],
+      "supuesto": "Las cifras de volumen son aproximadas y se validarian con datos reales"
+    }
+  }
+}

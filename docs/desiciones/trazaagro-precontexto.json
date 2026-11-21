@@ -1,0 +1,356 @@
+{
+  "metadata": {
+    "titulo": "TrazaAgro: definición de requerimientos",
+    "idioma": "es",
+    "proposito": "Reunir en un solo archivo qué debe hacer el sistema, la entrevista al experto del dominio y los criterios para dar por terminado el levantamiento de requerimientos",
+    "tecnicas_usadas": ["ToT (selección del proyecto)", "CoT (checklist de requerimientos)", "CoVe (criterios de aceptación)"]
+  },
+
+  "contexto_academico": {
+    "objetivo": "Cada equipo diseña, implementa y valida una aplicación a partir de un problema real o verosímil",
+    "paradigmas_obligatorios": {
+      "relacional": "Información estructurada, operaciones transaccionales, restricciones e integridad referencial",
+      "documental": "Información agrupada en documentos, estructuras anidadas o atributos cuya forma varía entre registros",
+      "grafo": "Entidades conectadas mediante relaciones explícitas, recorridos y patrones"
+    },
+    "prueba_de_eliminacion": "Si se elimina una de las tres bases, debe perderse o volverse claramente menos adecuada una capacidad importante; si la respuesta es 'ninguna', la justificación no es suficiente",
+    "contenido_minimo_propuesta": [
+      "Nombre de la aplicación",
+      "Problema",
+      "Usuarios",
+      "Objetivo general",
+      "Alcance (con exclusiones explícitas)",
+      "Operaciones principales",
+      "Datos necesarios",
+      "Justificación de los tres modelos"
+    ]
+  },
+
+  "proyecto_elegido": {
+    "opcion": "A",
+    "nombre": "TrazaAgro",
+    "descripcion_corta": "Trazabilidad de alimentos",
+    "problema": "Ante un brote de contaminación, no se sabe rápido qué lotes, productores y tiendas están afectados",
+    "usuarios": [
+      "Inspectores sanitarios",
+      "Productores",
+      "Distribuidores",
+      "Transportistas",
+      "Tiendas",
+      "Responsable de QA e inocuidad",
+      "Administradores"
+    ],
+    "objetivo_general": "Rastrear el origen y el destino de un lote en segundos",
+    "alcance": {
+      "incluye": [
+        "Registro de lotes",
+        "Registro de certificados y análisis de laboratorio",
+        "Registro de envíos y recepción en tienda",
+        "Rastreo hacia atrás y hacia adelante",
+        "Alertas y retiros de producto"
+      ],
+      "excluye": [
+        "Pagos",
+        "Facturación",
+        "App móvil",
+        "Sensores IoT",
+        "Blockchain"
+      ]
+    },
+    "operaciones_principales": [
+      "Registrar lote",
+      "Subir certificado o análisis",
+      "Registrar envío",
+      "Registrar recepción en tienda",
+      "Consultar ruta de un lote",
+      "Marcar lote como sospechoso o contaminado",
+      "Generar alerta de retiro"
+    ],
+    "datos_necesarios": ["Productores", "Parcelas", "Lotes", "Envíos", "Tiendas", "Análisis de laboratorio", "Certificados", "Alertas"],
+    "justificacion_modelos": {
+      "relacional": {
+        "motor_sugerido": "SQL (ej. PostgreSQL)",
+        "necesidad": "Productores, lotes, envíos e inventario con transacciones y llaves foráneas",
+        "si_se_elimina": "Se pierde integridad en inventarios y envíos"
+      },
+      "documental": {
+        "motor_sugerido": "MongoDB",
+        "necesidad": "Certificados y análisis de laboratorio con campos distintos según el producto y estructuras anidadas",
+        "si_se_elimina": "Los análisis heterogéneos quedan en columnas NULL o tablas EAV"
+      },
+      "grafo": {
+        "motor_sugerido": "Neo4j",
+        "necesidad": "Cadena productor, lote, transporte, tienda; recorridos de N saltos",
+        "si_se_elimina": "El rastreo de contagio se vuelve JOINs recursivos lentos"
+      }
+    },
+    "rol_entrevistado": "Responsable de Aseguramiento de Calidad e Inocuidad (QA) de una distribuidora de frutas y verduras frescas en México, con 15 años de experiencia"
+  },
+
+  "alternativas_descartadas": [
+    {"opcion": "B", "nombre": "RutaSalud", "tema": "Referencia y contrarreferencia de pacientes"},
+    {"opcion": "C", "nombre": "MentorMap", "tema": "Rutas de aprendizaje y tutorías (alternativa fácil de demostrar)"},
+    {"opcion": "D", "nombre": "AntiFraude Pay", "tema": "Detección de fraude en pagos"}
+  ],
+
+  "que_debe_hacer_el_sistema": {
+    "requerimientos_funcionales_preliminares": [
+      {"id": "RF-01", "descripcion": "Registrar productores y parcelas"},
+      {"id": "RF-02", "descripcion": "Registrar lotes (producto, fecha, cantidad, origen)"},
+      {"id": "RF-03", "descripcion": "Registrar envíos o traslados entre actores"},
+      {"id": "RF-04", "descripcion": "Registrar recepción en tienda e inventario"},
+      {"id": "RF-05", "descripcion": "Cargar certificados y análisis de laboratorio"},
+      {"id": "RF-06", "descripcion": "Consultar trazabilidad hacia atrás (de dónde vino)"},
+      {"id": "RF-07", "descripcion": "Consultar trazabilidad hacia adelante (a dónde fue)"},
+      {"id": "RF-08", "descripcion": "Marcar un lote como sospechoso o contaminado"},
+      {"id": "RF-09", "descripcion": "Generar alerta de retiro con lotes y tiendas afectadas"},
+      {"id": "RF-10", "descripcion": "Generar reportes (lotes por productor, alertas activas, historial)"}
+    ],
+    "reglas_de_negocio_preliminares": [
+      {"id": "RN-01", "descripcion": "Un lote bloqueado no puede enviarse"},
+      {"id": "RN-02", "descripcion": "Un envío no puede superar la cantidad disponible del lote"},
+      {"id": "RN-03", "descripcion": "Un lote contaminado bloquea los lotes derivados"}
+    ],
+    "estados_lote_ejemplo": ["creado", "en tránsito", "recibido", "bloqueado", "retirado"],
+    "requerimientos_no_funcionales": [
+      "Rendimiento: tiempos de respuesta objetivo (rastreo en segundos)",
+      "Integridad y consistencia: ACID en operaciones críticas",
+      "Seguridad: roles, contraseñas, acceso a certificados",
+      "Usabilidad: tipo de interfaz (web, CLI o API)",
+      "Portabilidad y despliegue (Docker, local o nube)",
+      "Respaldo y recuperación básicos"
+    ],
+    "checklist_definicion_completa": {
+      "contexto_y_problema": [
+        "Producto o cadena concreta como caso de estudio",
+        "Evento que dispara el sistema (brote, retiro, auditoría)",
+        "Meta medible (ej. rastrear un lote en menos de 5 s)",
+        "Datos de prueba: simulados o reales y volumen (ej. 50 productores, 500 lotes, 100 tiendas)"
+      ],
+      "actores_y_permisos": [
+        "Lista de roles",
+        "Matriz rol contra acciones permitidas",
+        "Autenticación y autorización definidas"
+      ],
+      "datos_y_reglas": [
+        "Entidades y atributos con tipo, obligatoriedad y unicidad",
+        "Relaciones y cardinalidades",
+        "Reglas de negocio explícitas",
+        "Estados y transiciones",
+        "Qué se borra y qué solo se marca como inactivo"
+      ],
+      "tres_modelos": [
+        "Qué dato vive en cada base",
+        "Estrategia de sincronización o consistencia entre las tres",
+        "Respuesta escrita a la prueba de eliminación por base",
+        "2 o 3 consultas de ejemplo por base"
+      ],
+      "alcance": [
+        "Funciones priorizadas (MoSCoW)",
+        "Exclusiones explícitas",
+        "Supuestos y restricciones"
+      ],
+      "validacion_y_entrega": [
+        "Historias de usuario o casos de uso con criterios de aceptación",
+        "Escenario de demo (ej. brote en el lote X, mostrar tiendas afectadas)",
+        "Plan de pruebas",
+        "Stack tecnológico elegido",
+        "Reparto de trabajo y cronograma"
+      ]
+    }
+  },
+
+  "entrevista": {
+    "rol_que_responde": "Responsable de Aseguramiento de Calidad e Inocuidad (QA)",
+    "instrucciones_para_la_ia": [
+      "Responder como persona del negocio, sin términos de bases de datos",
+      "Ser concreto: ejemplos reales, cifras aproximadas, nombres de documentos y estados",
+      "Decir 'no lo sé' o 'depende' cuando corresponda; no inventar normas ni leyes",
+      "Mantener coherencia entre respuestas (mismo producto, actores y cifras)",
+      "Mencionar excepciones y casos raros",
+      "Formato por pregunta: respuesta breve (2 a 6 líneas) más lista si hay varios elementos",
+      "Al terminar, generar el resumen final"
+    ],
+    "secciones": [
+      {
+        "id": 2,
+        "titulo": "Tu empresa y el producto",
+        "alimenta": "general",
+        "preguntas": [
+          {"id": "P01", "texto": "¿Qué producto(s) manejan? Elige uno principal para el caso de estudio y explica por qué"},
+          {"id": "P02", "texto": "¿Cuántos productores surten, cuántos lotes manejan al mes y a cuántas tiendas o clientes entregan?"},
+          {"id": "P03", "texto": "¿Cómo se ve la cadena completa, paso por paso, desde la parcela hasta el anaquel?"},
+          {"id": "P04", "texto": "¿Cuál es el problema más costoso hoy en trazabilidad? Cuenta un caso real o verosímil"},
+          {"id": "P05", "texto": "Hoy, ¿cómo se rastrea un lote (papel, Excel, WhatsApp, ERP)? ¿Cuánto tarda y qué falla?"},
+          {"id": "P06", "texto": "¿Qué se espera lograr con el sistema? Da metas medibles"}
+        ]
+      },
+      {
+        "id": 3,
+        "titulo": "Actores y permisos",
+        "alimenta": "general",
+        "preguntas": [
+          {"id": "P07", "texto": "¿Quiénes intervienen en el proceso (productor, empacadora, transportista, CEDIS, tienda, inspector, laboratorio, gerencia)?"},
+          {"id": "P08", "texto": "Para cada actor: ¿qué necesita registrar, qué consultar y qué no debería poder ver ni modificar?"},
+          {"id": "P09", "texto": "¿Quién autoriza liberar o bloquear un lote?"},
+          {"id": "P10", "texto": "¿Qué actores son externos (autoridades, auditores, clientes) y qué información reciben?"},
+          {"id": "P11", "texto": "¿Hay información confidencial (precios, productores, resultados de laboratorio)? ¿Quién puede verla?"}
+        ]
+      },
+      {
+        "id": 4,
+        "titulo": "Operación diaria (flujo normal)",
+        "alimenta": "relacional",
+        "preguntas": [
+          {"id": "P12", "texto": "Describe el flujo de un lote, desde la cosecha hasta la venta, con cada evento que se registra"},
+          {"id": "P13", "texto": "¿Qué datos se capturan en cada evento (fecha, hora, responsable, cantidad, temperatura, ubicación, documentos)?"},
+          {"id": "P14", "texto": "¿Un lote puede dividirse en varios envíos o mezclarse con otros? Da ejemplos y qué pasa con su identificador"},
+          {"id": "P15", "texto": "¿Cómo se identifica un lote (código, formato, quién lo asigna, puede repetirse)?"},
+          {"id": "P16", "texto": "¿Qué estados tiene un lote y quién cambia cada uno?"},
+          {"id": "P17", "texto": "¿Qué pasa si un envío llega incompleto, tarde o con temperatura fuera de rango?"},
+          {"id": "P18", "texto": "¿Qué reportes consultas semanal o mensualmente y con qué fin?"}
+        ]
+      },
+      {
+        "id": 5,
+        "titulo": "Documentos, certificados y análisis",
+        "alimenta": "documental",
+        "preguntas": [
+          {"id": "P19", "texto": "¿Qué documentos acompañan a un lote (certificados fitosanitarios, análisis de laboratorio, bitácoras, facturas, permisos)?"},
+          {"id": "P20", "texto": "¿Los análisis de laboratorio son iguales para todos los productos o cambian? Da 2 ejemplos con campos distintos"},
+          {"id": "P21", "texto": "¿Qué datos varían entre productores, productos o laboratorios (parámetros, unidades, formatos, certificaciones)?"},
+          {"id": "P22", "texto": "¿Hay documentos con información anidada (ej. un análisis con varias muestras, cada una con varios parámetros)?"},
+          {"id": "P23", "texto": "¿Cuánto tiempo se conservan los documentos y quién puede modificarlos o reemplazarlos?"},
+          {"id": "P24", "texto": "¿Un documento puede tener versiones o correcciones? ¿Cómo se manejan?"}
+        ]
+      },
+      {
+        "id": 6,
+        "titulo": "Rastreo y relaciones (hacia atrás y hacia adelante)",
+        "alimenta": "grafo",
+        "preguntas": [
+          {"id": "P25", "texto": "Si se detecta un problema en un lote, ¿qué preguntas necesitas responder de inmediato?"},
+          {"id": "P26", "texto": "¿Qué es más urgente: rastrear hacia atrás (origen) o hacia adelante (destino)? ¿Por qué?"},
+          {"id": "P27", "texto": "¿Cuántos niveles o pasos tiene normalmente la cadena? ¿Cuál es el máximo?"},
+          {"id": "P28", "texto": "¿Qué conexiones indirectas importan (mismo transporte, empacadora, fecha, laboratorio)?"},
+          {"id": "P29", "texto": "¿Puedes dar un caso donde la relación entre varios actores reveló la causa de un problema?"},
+          {"id": "P30", "texto": "¿Qué tan rápido deberías obtener la lista de tiendas afectadas ante un retiro? ¿Qué pasa hoy si no se obtiene a tiempo?"}
+        ]
+      },
+      {
+        "id": 7,
+        "titulo": "Gestión de incidentes y retiros (recall)",
+        "alimenta": "general",
+        "preguntas": [
+          {"id": "P31", "texto": "Paso a paso, ¿cómo se declara un lote sospechoso y quién lo decide?"},
+          {"id": "P32", "texto": "Cuando se bloquea un lote, ¿qué pasa con lotes relacionados, envíos en curso e inventario en tiendas?"},
+          {"id": "P33", "texto": "¿Qué información debe contener una alerta de retiro? ¿A quién se notifica y por qué medio?"},
+          {"id": "P34", "texto": "¿Cómo se cierra un incidente (evidencias, resultados, responsables, tiempos)?"},
+          {"id": "P35", "texto": "¿Qué evidencia debe quedar guardada para una auditoría o autoridad?"}
+        ]
+      },
+      {
+        "id": 8,
+        "titulo": "Reglas de negocio y restricciones",
+        "alimenta": "relacional",
+        "preguntas": [
+          {"id": "P36", "texto": "Enumera las reglas que nunca deben romperse"},
+          {"id": "P37", "texto": "¿Qué datos son obligatorios y cuáles opcionales en cada registro?"},
+          {"id": "P38", "texto": "¿Qué operaciones deben ser todo o nada (ej. registrar un envío y descontar inventario al mismo tiempo)?"},
+          {"id": "P39", "texto": "¿Qué se puede borrar y qué solo debe marcarse como inactivo o histórico?"},
+          {"id": "P40", "texto": "¿Hay límites (tiempos máximos en tránsito, rangos de temperatura, caducidades, cantidades)?"},
+          {"id": "P41", "texto": "¿Qué normas o requisitos legales conoces que apliquen? Indica si deben verificarse"}
+        ]
+      },
+      {
+        "id": 9,
+        "titulo": "Requisitos de uso, calidad y alcance",
+        "alimenta": "general",
+        "preguntas": [
+          {"id": "P42", "texto": "¿Quién usaría el sistema, desde qué dispositivos y en qué condiciones (oficina, campo, bodega, sin internet)?"},
+          {"id": "P43", "texto": "¿Qué tan rápido debe responder en situaciones normales y en una emergencia?"},
+          {"id": "P44", "texto": "¿Qué pasa si el sistema falla durante un retiro? ¿Qué es lo mínimo que no puede perderse?"},
+          {"id": "P45", "texto": "¿Cuántos usuarios simultáneos y cuántos registros por día esperarías?"},
+          {"id": "P46", "texto": "¿Qué cosas no esperas que haga el sistema en una primera versión?"},
+          {"id": "P47", "texto": "Si solo pudiera hacer 5 cosas en la primera versión, ¿cuáles serían y por qué?"},
+          {"id": "P48", "texto": "¿Qué escenario te convencería en una demostración? Descríbelo con datos de ejemplo"},
+          {"id": "P49", "texto": "¿Qué riesgos o dudas ves para que el proyecto fracase en la práctica?"}
+        ]
+      }
+    ],
+    "resumen_final_esperado": [
+      "Lista de actores con sus permisos (tabla)",
+      "Requerimientos funcionales (ID, actor, acción, resultado, criterio de aceptación), mínimo 10",
+      "Entidades y datos clave con atributos principales",
+      "Reglas de negocio numeradas (RN-01, RN-02...)",
+      "Estados y transiciones de un lote",
+      "Preguntas de rastreo que el sistema debe responder (consultas de recorrido)",
+      "Datos que varían o son anidados (estructuras de documento)",
+      "Operaciones críticas que deben ser consistentes (transacciones)",
+      "Requerimientos no funcionales",
+      "Alcance: qué sí y qué no entra en la primera versión, priorizado",
+      "Escenario de demo de principio a fin",
+      "Supuestos y lagunas"
+    ]
+  },
+
+  "criterios_de_aceptacion": {
+    "nota": "Los criterios salieron de verificar con CoVe el borrador 'se respondieron las 49 preguntas': faltaban mínimos medibles, cobertura de las 3 bases, detección de contradicciones y validación externa (quien responde es una IA y puede inventar)",
+    "calidad_de_respuestas": [
+      "Cada respuesta tiene ejemplo concreto o cifra aproximada",
+      "Las excepciones y casos raros están mencionados",
+      "Mismo producto, actores y cifras en todas las secciones",
+      "Lo desconocido está marcado como 'no sé / depende de', no inventado"
+    ],
+    "minimos_por_seccion": [
+      {"seccion": 2, "bloqueante": true, "minimo": "1 producto elegido, volúmenes (productores, lotes al mes, tiendas), 1 caso de incidente y meta medible"},
+      {"seccion": 3, "bloqueante": true, "minimo": "Al menos 5 roles con registrar, consultar y restringido; quién libera o bloquea un lote"},
+      {"seccion": 4, "bloqueante": true, "minimo": "Flujo completo con eventos y datos por evento; al menos 4 estados con quién los cambia; qué pasa con división y mezcla de lotes"},
+      {"seccion": 5, "bloqueante": true, "minimo": "Al menos 2 productos con análisis de campos distintos; al menos 1 estructura anidada; reglas de conservación y versiones"},
+      {"seccion": 6, "bloqueante": true, "minimo": "Al menos 3 preguntas de rastreo concretas; cadena de al menos 3 niveles; al menos 2 conexiones indirectas; tiempo objetivo"},
+      {"seccion": 7, "bloqueante": true, "minimo": "Proceso de declarar, bloquear, notificar y cerrar un retiro; contenido de la alerta; evidencia a guardar"},
+      {"seccion": 8, "bloqueante": true, "minimo": "Al menos 8 reglas de negocio claras; al menos 2 operaciones todo o nada; qué se borra y qué solo se inactiva"},
+      {"seccion": 9, "bloqueante": true, "minimo": "Exclusiones explícitas; top 5 de funciones para la v1; escenario de demo; volumen y tiempos esperados"},
+      {"seccion": "9 (riesgos)", "bloqueante": false, "minimo": "Dudas o riesgos del proyecto (deseable)"}
+    ],
+    "resumen_final": [
+      "Al menos 10 requerimientos funcionales con ID, actor, acción, resultado y criterio de aceptación",
+      "Reglas de negocio numeradas (RN-01...)",
+      "Tabla o diagrama de estados y transiciones del lote",
+      "Entidades con atributos clave",
+      "Escenario de demo de principio a fin",
+      "Lista de supuestos y lagunas"
+    ],
+    "evidencia_por_base": {
+      "relacional": "Al menos 2 operaciones que exigen consistencia (ej. envío más descuento de inventario) y al menos 3 reglas de integridad",
+      "documental": "Al menos 2 tipos de documento con campos variables y al menos 1 estructura anidada",
+      "grafo": "Al menos 3 preguntas de recorrido (3 o más saltos) que el QA considera urgentes",
+      "condicion_comun": "Para cada base se puede redactar 'sin ella se pierde X' usando solo lo dicho en la entrevista"
+    },
+    "consistencia_y_validez": [
+      "0 contradicciones sin resolver entre secciones (cifras, estados, roles)",
+      "Toda norma o ley citada está marcada 'por verificar' y se contrastó con una fuente oficial",
+      "Al menos 2 o 3 respuestas críticas (flujo del lote, reglas, rastreo) se validaron con otra fuente: segundo rol (logística o inspector), otra IA o documentación real"
+    ],
+    "semaforo_de_decision": [
+      {"estado": "verde (Go)", "condicion": "Todas las secciones bloqueantes cumplen los criterios de calidad, resumen, bases y consistencia", "accion": "Pasar al análisis de requerimientos"},
+      {"estado": "amarillo (Go con riesgos)", "condicion": "Faltan 1 o 2 puntos y están registrados como lagunas con responsable", "accion": "Empezar y cerrar lagunas en paralelo"},
+      {"estado": "rojo (No-go)", "condicion": "Falta el flujo del lote, las reglas de negocio o la evidencia de alguna de las 3 bases", "accion": "Repetir la sección faltante"}
+    ],
+    "autocomprobacion": [
+      "¿Puedo escribir los RF sin inventar nada?",
+      "¿Sé qué dato va en cada base y por qué?",
+      "¿Hay 3 consultas de grafo, 2 operaciones ACID y 2 documentos variables, todos con origen en la entrevista?",
+      "¿Las cifras son coherentes entre secciones?",
+      "¿Está claro qué entra y qué no en la v1?",
+      "¿Validé lo crítico con una segunda fuente?"
+    ]
+  },
+
+  "siguientes_pasos_sugeridos": [
+    "Correr la entrevista con la IA en el rol de QA",
+    "Repetirla con un segundo rol (logística o inspector sanitario) y comparar contradicciones",
+    "Aplicar los criterios de aceptación y el semáforo",
+    "Redactar RF con criterios de aceptación y el modelo de datos de las 3 bases"
+  ]
+}
