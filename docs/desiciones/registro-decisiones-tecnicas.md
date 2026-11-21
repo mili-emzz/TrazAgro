@@ -203,3 +203,27 @@ El valor legal y operativo de un sistema de trazabilidad depende de la certeza d
 
 ### Impacto
 * Cumplimiento normativo y confianza total de auditoría para clientes internacionales y autoridades regulatorias.
+
+## 9. Seguridad en Persistencia: Principio de Menor Privilegio (PoLP)
+
+### Contexto
+Actualmente los contenedores de desarrollo exponen usuarios con privilegios administrativos totales (`trazaagro` superuser/owner en PostgreSQL, usuario root en MongoDB y `neo4j` admin en Neo4j). Si la API backend se conecta usando estas credenciales maestras, cualquier brecha de seguridad o error de código podría permitir operaciones destructivas de DDL (`DROP TABLE`, `DROP DATABASE`) o escalación de privilegios en el motor.
+
+### Opciones consideradas
+* **Opción A:** Mantener un solo usuario administrativo para desarrollo y producción compartiendo credenciales root con la API.
+* **Opción B:** Separar roles por nivel de privilegio: un usuario administrador de infraestructura (para ejecutar scripts DDL iniciales, migraciones y mantenimiento) y un usuario de aplicación dedicado (`trazaagro_app`) con privilegios mínimos (DML: `SELECT`, `INSERT`, `UPDATE`, `DELETE`) para el backend.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* **PostgreSQL:** Crear el rol `trazaagro_app` con permisos exclusivos de DML (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) sobre las tablas del esquema `public` y uso de secuencias. No tiene permisos de superusuario, creación de bases ni alteración de esquemas (DDL).
+* **MongoDB:** Crear un usuario específico de aplicación acotado únicamente a la base `trazaagro` con el rol estándar `readWrite`, sin acceso a colecciones del sistema (`admin`, `config`) ni roles de gestión de usuarios (`userAdmin`, `dbAdmin`).
+* **Neo4j:** En entorno Community se segregan las credenciales de conexión de la API frente a las credenciales administrativas de mantenimiento, limitando la superficie de exposición.
+* **Backend:** La API en tiempo de ejecución solo recibe y utiliza las cadenas de conexión del usuario `trazaagro_app` vía variables de entorno en `.env`. Los scripts DDL y semillas continúan siendo administrados por el usuario de aprovisionamiento.
+
+### Directriz / Prompt detonante
+"Implementar el Principio de Menor Privilegio en las conexiones de base de datos para que la API no opere con credenciales de superusuario o privilegios administrativos innecesarios."
+
+### Impacto
+* Arquitectura mucho más profesional y alineada con estándares de seguridad en producción (defensa en profundidad).
+* Protección contra caídas o borrados accidentales de estructuras de datos desde la capa de la API.
+* Transición transparente para el backend: solo requiere actualizar las cadenas de conexión en las variables de entorno sin modificar la lógica de los repositorios.
