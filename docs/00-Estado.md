@@ -34,15 +34,18 @@ Documento de seguimiento del avance, decisiones tomadas y próximos pasos para e
 * Ubicación en Drive: Subido a la carpeta `proyecto-final-daas`
 * Enlace directo: https://docs.google.com/document/d/1e-fzkRqbar6NgudHrJxgtqc5TiCMQCHjyHV96D2a6BI/edit
 * Contenido cubierto: Diagrama de arquitectura de componentes modular en capas, responsabilidades estrictas por capa (Frontend SPA, Routers FastAPI + Pydantic, Servicios coordinadores, Repositorios con drivers oficiales), selección tecnológica y matrices de comparación justificadas (FastAPI, React + TypeScript + Vite, API REST con OpenAPI, drivers oficiales `psycopg` v3, `pymongo`, `neo4j`), contratos de API REST (14 endpoints con roles, reglas `RN-01` a `RN-11` y códigos HTTP), diagramas de secuencia de flujos integrados (Protocolo de Recall y Expediente 360°), matriz unificada de fuente de verdad y estrategia de consistencia eventual coordinada con `MERGE` idempotente y tabla técnica outbox `eventos_reconciliacion` ante fallos parciales.
-* Siguiente entregable inmediato: Entregable 4 (Implementación de las tres bases).
 
 ### Entregable 4: Implementación de las tres bases
-* Estatus: Pendiente
-* Objetivo: Scripts reproducibles de creación y carga de datos iniciales en PostgreSQL, MongoDB y Neo4j.
+* Estatus: Concluido
+* Ubicación local: `docs/04-implementacion-bases.md`
+* Ubicación en Drive: Subido a la carpeta `proyecto-final-daas`
+* Contenido cubierto: Scripts reproducibles DDL y validadores `$jsonSchema`, datos semilla y suite de validación de integridad para PostgreSQL, MongoDB y Neo4j en contenedores Docker Compose.
 
 ### Entregable 5: Catálogo de operaciones y consultas
-* Estatus: Pendiente
-* Objetivo: Pruebas y documentación de consultas funcionales individuales e integradas con casos límite.
+* Estatus: Concluido
+* Ubicación local: `docs/05-catalogo-consultas.md`
+* Contenido cubierto: Catálogo completo de operaciones individuales por motor (PostgreSQL, MongoDB, Neo4j) y operaciones integradas multimotor (Protocolo de Recall y Expediente 360°), con parámetros, reglas del negocio (`RN-01` a `RN-11`), casos límite y evidencias de ejecución directa en Docker.
+* Siguiente entregable inmediato: Entregable 6 (Backend y API).
 
 ### Entregable 6: Backend y API
 * Estatus: Pendiente
