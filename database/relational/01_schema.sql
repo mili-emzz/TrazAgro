@@ -269,4 +269,28 @@ WHERE r.temperatura_llegada_c < 4.0
 
 COMMENT ON VIEW v_auditoria_cadena_frio IS 'Detecta lotes cuya recepción en CEDIS registró temperaturas fuera del rango permitido (4.0 a 8.0 °C).';
 
+-- ============================================================================
+-- 5. USUARIO DEDICADO DE APLICACIÓN CON PRIVILEGIOS MÍNIMOS (PoLP)
+-- ============================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'trazaagro_app') THEN
+        CREATE ROLE trazaagro_app WITH LOGIN PASSWORD 'trazaagro_app_pass';
+    ELSE
+        ALTER ROLE trazaagro_app WITH PASSWORD 'trazaagro_app_pass';
+    END IF;
+END
+$$;
+
+GRANT CONNECT ON DATABASE trazaagro TO trazaagro_app;
+GRANT USAGE ON SCHEMA public TO trazaagro_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO trazaagro_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO trazaagro_app;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO trazaagro_app;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT USAGE, SELECT ON SEQUENCES TO trazaagro_app;
+
 COMMIT;

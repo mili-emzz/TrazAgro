@@ -12,3 +12,20 @@
 ## Conciencia y Autoverificación
 * Criterio consciente: Antes de proponer, editar código o redactar documentación, revisa cómo impacta al resto del proyecto (entregables previos, reglas de negocio y consistencia entre PostgreSQL, MongoDB y Neo4j) para no generar contradicciones.
 * Autoverificación al terminar: Antes de dar por cerrada una tarea o edición importante, realiza una breve ronda interna de preguntas de verificación (por ejemplo: ¿coinciden los nombres de campos y entidades con los otros entregables?, ¿respeté la fuente de verdad?, ¿verifiqué los archivos reales en lugar de asumir?) y corrige cualquier detalle detectado antes de responder.
+
+## Regla de Flujo Git: Ramas por Feature y Commits Atómicos
+
+### 1. Verificación de Rama Activa y Sincronización Previa (git pull)
+Antes de realizar cualquier modificación o comenzar a trabajar en una feature, el agente o desarrollador DEBE cumplir dos pasos obligatorios:
+1. **Verificar rama:** Comprobar en qué rama se encuentra (`git branch --show-current` o `git status`) y confirmar que coincide con la feature asignada. Nunca trabajar sobre la rama equivocada ni hacer commits directos en `main`.
+2. **Sincronización obligatoria (`git pull`):** Ejecutar SIEMPRE `git pull` (o `git pull origin <rama>`) antes de empezar a escribir código para garantizar que el proyecto local esté completamente actualizado con el repositorio remoto y evitar conflictos innecesarios.
+
+### 2. Mapa Oficial de Ramas y Responsabilidades
+* `main`: Código funcional de producción. Prohibido tocar directamente. Su única regla de admisión es que debe estar completamente validado por pruebas automatizadas aprobadas.
+* `develop`: rama pre`main` codigo para probar antes de main.
+
+### 3. Política de Commits Atómicos
+* Cada cambio debe tener su propio commit independiente para mantener una estructura limpia y una secuencia segura y trazable.
+* Queda prohibido hacer commits masivos que mezclen múltiples pantallas, lógica de features distintas o cambios de configuración con lógica.
+* Cada commit debe dejar el proyecto compilando y con pruebas.
+* Formato de commit: Conventional Commits indicando feature y alcance.

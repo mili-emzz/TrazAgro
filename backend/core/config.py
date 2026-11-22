@@ -12,11 +12,11 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = True
 
-    # PostgreSQL
-    POSTGRES_URI: str = "postgresql://trazaagro:trazaagro_dev_pass@localhost:5433/trazaagro"
+    # PostgreSQL (usuario trazaagro_app con permisos mínimos)
+    POSTGRES_URI: str = "postgresql://trazaagro_app:trazaagro_app_pass@localhost:5433/trazaagro"
 
-    # MongoDB
-    MONGO_URI: str = "mongodb://trazaagro:trazaagro_dev_pass@localhost:27017/trazaagro?authSource=admin"
+    # MongoDB (usuario trazaagro_app con rol readWrite)
+    MONGO_URI: str = "mongodb://trazaagro_app:trazaagro_app_pass@localhost:27017/trazaagro?authSource=trazaagro"
     MONGO_DB: str = "trazaagro"
 
     # Neo4j

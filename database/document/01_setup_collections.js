@@ -417,4 +417,23 @@ db.expedientes_incidentes.createIndex(
 );
 
 print("OK: Colección expedientes_incidentes e índices creados.");
+
+// ============================================================================
+// 4. USUARIO DEDICADO DE APLICACIÓN CON PRIVILEGIOS MÍNIMOS (PoLP)
+// ============================================================================
+try {
+  db.dropUser("trazaagro_app");
+} catch (e) {
+  // Ignorar si el usuario aún no existe
+}
+
+db.createUser({
+  user: "trazaagro_app",
+  pwd: "trazaagro_app_pass",
+  roles: [
+    { role: "readWrite", db: "trazaagro" }
+  ]
+});
+print("OK: Usuario de aplicación trazaagro_app creado con rol readWrite.");
+
 print("=== Configuración documental completada con éxito ===");
