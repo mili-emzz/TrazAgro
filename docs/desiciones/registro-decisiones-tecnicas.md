@@ -271,3 +271,46 @@ Se adoptó la **Opción B**:
 ### Impacto
 * Eliminación total de conflictos de red con instalaciones locales de PostgreSQL en Windows.
 * Validación exitosa en vivo de la API contra PostgreSQL 16 (`5434`), MongoDB 7 (`27017`) y Neo4j 5 (`7687`) con los tres motores reportando estado `operativo` en `/api/v1/health`.
+
+## 12. Alineación de Frontend por Rol (Login Cerrado, 5 Vistas sobre 4 Roles RBAC) y Poda de Alcance Extra
+
+### Contexto
+Al auditar el prototipo inicial generado en v0 (`index.html`) frente al backend real (`backend/services/auth_service.py` y `docs/03-arquitectura.md`), se detectaron dos desalineaciones importantes: el diseño incluía funcionalidades no especificadas en el MVP (modo offline PWA en Productor, pre-aprobación burocrática del recall por Gerencia y métricas porcentuales no modeladas en BD) y planteaba 5 dashboards mientras que el `AuthService` implementa 4 roles oficiales (`Productor`, `Recepcion`, `Laboratorio`, `QA`), sin endpoint público de auto-registro.
+
+### Opciones consideradas
+* **Opción A:** Modificar `AuthService` y el esquema RBAC para agregar un quinto rol (`Gerencia`) y un endpoint de registro abierto con selección de rol.
+* **Opción B:** Conservar intacto el modelo de seguridad cerrado del backend (4 roles oficiales en JWT sin auto-registro público, protegiendo `RN-04` y `RN-11`), eliminar las funcionalidades inventadas del prototipo y organizar el frontend en React + TypeScript con un Login conectado a `/api/v1/auth/login` (más presets de acceso rápido demo) y 5 vistas operativas donde `QA` accede tanto a la Consola Recall (`/qa/recall`) como al Tablero Ejecutivo de Gerencia (`/qa/gerencia`).
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* **Login cerrado con acceso rápido demo:** Se descartó el registro público con selector de rol para evitar suplantación de privilegios sanitarios (`RN-04`). El login consume `POST /api/v1/auth/login` y ofrece tarjetas de un clic para las cuentas semilla reales.
+* **5 Vistas sobre 4 Roles RBAC:** Productor (`/productor`), Recepción CEDIS (`/cedis`), Laboratorio (`/laboratorio`), QA Consola Recall (`/qa/recall`) y Gerencia Auditoría (`/qa/gerencia`), protegidas por `RoleGuard` y conectadas a los 14 endpoints REST mediante TanStack Query v5.
+* **Poda de alcance extra:** Se eliminaron las alertas offline/PWA, la pre-aprobación de recall y los porcentajes inventados, sustituyéndolos por los datos reales de PostgreSQL, MongoDB y Neo4j.
+
+### Directriz / Prompt detonante
+"Usa CoT y CoVe para verificar si las vistas deben quedar así, elimina lo que no especificamos y van de extra, y haz login sin registro público con las pantallas necesarias por rol."
+
+### Impacto
+* Cero ruptura de contratos ni de las 38 pruebas automatizadas del backend.
+* Cobertura operativa completa mediante modales dedicados para recepción (`RN-07`), despacho fraccionado (`RN-01`, `RN-03`), enmiendas de laboratorio (`RN-05`), bloqueo recall (`RN-08`), cierre de expedientes (`RN-09`) y reconciliación outbox.
+
+## 13. Empaquetado de Escritorio con Electron sobre React + TypeScript + Vite
+
+### Contexto
+Conforme a la guía oficial del proyecto (`docs/guia-proyecto/guia-proyecto.md`), la interfaz gráfica de usuario puede entregarse como aplicación web, móvil o de escritorio. Una vez construida la SPA en `frontend/` con React 18, TypeScript y Vite, se evaluó ofrecerla como aplicación nativa de escritorio en Windows sin duplicar código ni reescribir la capa de presentación.
+
+### Opciones consideradas
+* **Opción A:** Reescribir la interfaz en un framework nativo de Python (PyQt/Tkinter) descartando el avance en React y el visor interactivo.
+* **Opción B:** Envolver la aplicación existente de React + Vite con **Electron** (`electron/main.cjs` y `electron/preload.cjs`), utilizando `HashRouter` y detección de protocolo `file://` en el cliente HTTP para comunicarse con FastAPI en `http://127.0.0.1:8000`.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* Se configuraron los scripts `npm run desktop` (desarrollo integrado con Vite + Electron) y `npm run desktop:prod` (ejecución del paquete compilado `dist/`) en `frontend/package.json`.
+* Se aplicó aislamiento de contexto seguro (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`) en la ventana principal.
+* Se mantuvo la compatibilidad dual: la misma base de código funciona tanto en ventana de escritorio nativa como en navegador web (`npm run dev`).
+
+### Directriz / Prompt detonante
+"En la guía del proyecto dice web, móvil o de escritorio; si se puede convertir así como estamos, dale con Electron por favor."
+
+### Impacto
+* Entrega de aplicación de escritorio funcional en Windows en minutos, conservando el diseño, tipado estricto TypeScript y conexión directa a la API REST FastAPI.
