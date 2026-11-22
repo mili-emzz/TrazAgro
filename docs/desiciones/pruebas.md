@@ -4,11 +4,11 @@ Este documento concentra los resultados de la validación integral del backend d
 
 ## Resumen Ejecutivo y Entorno de Ejecución
 
-* **Resultado global:** **38 de 38 pruebas aprobadas (100%)** en `6.62 s`.
+* **Suite automatizada (`pytest`):** **38 de 38 pruebas aprobadas (100%)**, sin advertencias de seguridad JWT tras actualizar la clave a 256 bits.
+* **Validación en vivo contra Docker:** **100% operativa** contra los tres contenedores reales (`trazaagro-postgres`, `trazaagro-mongo` y `trazaagro-neo4j`) autenticados con el usuario PoLP `trazaagro_app`.
 * **Comando reproducible:** `pytest tests/ -v` (configurado mediante `pytest.ini` en la raíz del repositorio).
-* **Entorno:** Windows, Python `3.13.5`, FastAPI + Starlette `TestClient`, `pytest 8.4.2`, `PyJWT`, `bcrypt`, `Pydantic v2`.
-* **Alcance de la corrida:** Se ejecutaron pruebas unitarias, de integración de rutas/seguridad/Outbox y flujo E2E completo sobre la aplicación real de FastAPI (middlewares, autenticación JWT, RBAC, esquemas Pydantic, servicios coordinadores y manejadores de error) respaldada por repositorios estatales en memoria sincronizados con las semillas del Entregable 4, además de inspección directa de consultas parametrizadas sobre los repositorios reales (`PostgresRepository` y `Neo4jRepository`).
-* **Nota operativa de infraestructura:** Durante esta corrida Docker Desktop estuvo detenido, por lo que MongoDB (`27017`) y Neo4j (`7687`) no estaban activos, y en el puerto `5433` respondió un servicio local de PostgreSQL distinto al contenedor `trazaagro-postgres`. Al encender Docker Compose conviene validar que el puerto `5433` esté libre para el contenedor del proyecto y correr una verificación en vivo contra los tres motores.
+* **Entorno:** Windows, Python `3.13.5`, FastAPI + Starlette `TestClient`, `pytest 8.4.2`, `PyJWT`, `bcrypt`, `Pydantic v2`, Docker Compose (`postgres:16-alpine` en puerto `5434`, `mongo:7` en `27017`, `neo4j:5-community` en `7687`).
+* **Alcance de la corrida:** Combina pruebas unitarias, de integración de rutas/seguridad/Outbox y flujo E2E completo (38 tests deterministas con repositorios estatales en memoria + inspección de parametrización real), complementadas con una corrida en vivo sin mocks sobre las tres bases de datos en Docker.
 
 ## 1. Validación de Rutas y Contratos REST
 
@@ -94,8 +94,21 @@ Durante la auditoría y ejecución de la suite se detectaron cinco oportunidades
 2. **Esquemas de URL peligrosos en evidencias fotográficas:** `EvidenciaFotograficaSchema.url_archivo` ahora exige prefijos seguros (`https://`, `http://` o `/`), bloqueando esquemas `javascript:` o `data:`.
 3. **Lotes duplicados dentro de un mismo envío:** Se agregó validación en `EnvioCreateRequest` para rechazar lotes repetidos en `detalles` desde la capa Pydantic (`422`), complementando el candado `UNIQUE` de PostgreSQL.
 4. **Filtro `estado` no acotado en `GET /api/v1/lotes`:** Se restringió el parámetro de consulta a `Literal` con los 6 estados oficiales del dominio.
-5. **Longitud de clave JWT (`InsecureKeyLengthWarning`):** La clave por defecto en `backend/core/config.py` y `.env.example` tenía 31 bytes (menor a los 32 bytes / 256 bits recomendados por RFC 7518). Ya fue corregida en ambos archivos; **pendiente manual:** actualizar también el valor de `JWT_SECRET_KEY` en el archivo local `.env` (ignorado por Git) a una cadena de al menos 32 bytes para eliminar el warning al ejecutar en local.
+5. **Longitud de clave JWT (`InsecureKeyLengthWarning`):** La clave por defecto en `backend/core/config.py`, `.env.example` y `.env` tenía 31 bytes (menor a los 32 bytes / 256 bits recomendados por RFC 7518). Fue corregida en los tres archivos y revalidada en `pytest` con cero advertencias de PyJWT.
+6. **Colisión de puerto 5433 y roles PoLP en volúmenes Docker:** Los servicios locales de PostgreSQL en Windows (`postgresql-x64-17`/`18`) interceptaban el puerto `5433`, y los volúmenes previos de Docker no contenían el usuario `trazaagro_app`. Se mapeó `trazaagro-postgres` al puerto `5434` en `.env` y se aprovisionó `trazaagro_app` en PostgreSQL y MongoDB.
 
-## 6. Siguiente Verificación Recomendada
+## 6. Validación en Vivo contra Contenedores Docker (PostgreSQL + MongoDB + Neo4j)
 
-Con la suite automatizada en verde (`38 passed`), el único paso pendiente para cerrar la validación de infraestructura es iniciar Docker Desktop, levantar `docker compose up -d` (asegurando disponibilidad del puerto `5433` para `trazaagro-postgres`) y ejecutar una prueba de humo en vivo contra `GET /api/v1/health` y el flujo Swagger en `/docs`.
+Una vez levantados los tres contenedores y resuelto el puerto `5434`, se ejecutó `TestClient(app)` **sin mocks ni overrides** directo contra la infraestructura real:
+
+| Endpoint Evaluado | Resultado HTTP | Evidencia Real Observada |
+| :--- | :--- | :--- |
+| `GET /api/v1/health` | `200 OK` | `status: "operativo"` en `postgresql`, `mongodb` y `neo4j` (`detail: null`) |
+| `POST /api/v1/auth/login` | `200 OK` | Emisión de JWT `HS256` para `qa_admin` sin warnings |
+| `GET /api/v1/lotes` | `200 OK` | `6` lotes maestros consultados desde PostgreSQL (`trazaagro_app`) |
+| `GET /api/v1/lotes/AGU-P014-260312-01` | `200 OK` | Expediente 360° completo: `estado = Bloqueado`, `2` análisis (Mongo), `2` envíos y `2` vínculos hermanos (Neo4j), `advertencias = []` |
+| `GET /api/v1/trazabilidad/AGU-P014-260312-01/adelante` | `200 OK` (`58.8 ms`) | `2` envíos, `850.0 kg` despachados en Neo4j |
+| `GET /api/v1/trazabilidad/AGU-P014-260312-01/atras-lateral` | `200 OK` (`266.1 ms`) | Detección de lote hermano `AGU-P014-260312-02` por vehículo y cuarto frío compartidos |
+| `GET /api/v1/analisis/AGU-P014-260312-01?solo_no_conformes=true` | `200 OK` | `1` certificado infractor recuperado con `$elemMatch` (`LAB-2026-AGU-0842-V1`) |
+
+Con la suite automatizada en verde (`38/38`) y la validación en vivo aprobada sobre los tres motores reales, el backend queda listo para integrarse con el frontend.
