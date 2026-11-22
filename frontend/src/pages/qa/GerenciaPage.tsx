@@ -371,7 +371,19 @@ export const GerenciaPage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+            {cerrarMutation.isError && (
+              <div
+                className="alert alert-bad"
+                style={{ margin: '14px 0 6px 0', padding: '10px 14px', fontSize: 13 }}
+              >
+                <strong>Error al cerrar expediente:</strong>{' '}
+                {cerrarMutation.error instanceof ApiError
+                  ? cerrarMutation.error.message
+                  : 'Verifica los requisitos de la regla RN-09 (causa raíz y acciones correctivas).'}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
               <button
                 type="button"
                 className="btn btn-ghost"

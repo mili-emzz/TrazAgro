@@ -549,11 +549,25 @@ export const RecepcionCedisPage: React.FC = () => {
                 onChange={(e) => setRecTemp(e.target.value)}
                 required
               />
-              <small style={{ color: isTempOut ? 'var(--danger)' : 'var(--primary)', fontWeight: 600 }}>
+              <div
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  marginTop: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: isTempOut ? '#FDF0ED' : '#EDF7EE',
+                  color: isTempOut ? 'var(--danger)' : 'var(--primary)',
+                  border: `1px solid ${isTempOut ? '#F5C2B7' : '#BCE3C2'}`,
+                }}
+              >
                 {isTempOut
-                  ? '⚠ Fuera de 4.0–8.0 °C (RN-07): el lote quedará Retenido / En revisión.'
-                  : '✓ Dentro de rango térmico 4.0–8.0 °C (RN-07): dictamen Conforme.'}
-              </small>
+                  ? '⚠ ALERTA RN-07: Temperatura fuera de 4.0–8.0 °C. El lote quedará en CUARENTENA (En revisión / Retenido).'
+                  : '✓ CUMPLE NORMA (RN-07): Temperatura dentro de rango 4.0–8.0 °C. Dictamen Conforme.'}
+              </div>
             </div>
 
             <div className="field">
@@ -594,7 +608,19 @@ export const RecepcionCedisPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+          {recepcionMutation.isError && (
+            <div
+              className="alert alert-bad"
+              style={{ margin: '14px 0 6px 0', padding: '10px 14px', fontSize: 13 }}
+            >
+              <strong>Error en recepción:</strong>{' '}
+              {recepcionMutation.error instanceof ApiError
+                ? recepcionMutation.error.message
+                : 'Ocurrió un error al registrar el acta de recepción.'}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
             <button
               type="button"
               className="btn btn-ghost"
@@ -716,7 +742,19 @@ export const RecepcionCedisPage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+            {envioMutation.isError && (
+              <div
+                className="alert alert-bad"
+                style={{ margin: '14px 0 6px 0', padding: '10px 14px', fontSize: 13 }}
+              >
+                <strong>Error en despacho:</strong>{' '}
+                {envioMutation.error instanceof ApiError
+                  ? envioMutation.error.message
+                  : 'Ocurrió un error al procesar el despacho fraccionado.'}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
               <button
                 type="button"
                 className="btn btn-ghost"

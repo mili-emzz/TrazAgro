@@ -531,6 +531,18 @@ export const LaboratorioPage: React.FC = () => {
           </div>
         )}
 
+        {analisisMutation.isError && (
+          <div
+            className="alert alert-bad"
+            style={{ margin: '12px 0', padding: '10px 14px', fontSize: 13 }}
+          >
+            <strong>Error al registrar certificado:</strong>{' '}
+            {analisisMutation.error instanceof ApiError
+              ? analisisMutation.error.message
+              : 'Error al registrar análisis en MongoDB.'}
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginTop: 8 }}>
           <p className="lock" style={{ margin: 0 }}>
             <Shield size={15} />

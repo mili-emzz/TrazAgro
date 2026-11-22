@@ -321,6 +321,18 @@ export const ProductorPage: React.FC = () => {
               </div>
             </div>
 
+            {crearMutation.isError && (
+              <div
+                className="alert alert-bad"
+                style={{ margin: '12px 0', padding: '10px 14px', fontSize: 13 }}
+              >
+                <strong>Error al registrar lote:</strong>{' '}
+                {crearMutation.error instanceof ApiError
+                  ? crearMutation.error.message
+                  : 'No se pudo registrar el lote agrícola.'}
+              </div>
+            )}
+
             <button
               type="submit"
               className="btn btn-primary"

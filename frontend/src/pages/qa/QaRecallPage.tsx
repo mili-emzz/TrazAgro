@@ -547,6 +547,25 @@ export const QaRecallPage: React.FC = () => {
             });
           }}
         >
+          <div
+            style={{
+              padding: '10px 14px',
+              borderRadius: 6,
+              fontSize: 12.5,
+              background: '#FDF0ED',
+              border: '1px solid #F5C2B7',
+              color: 'var(--danger)',
+              marginBottom: 14,
+            }}
+          >
+            <strong>Impacto Multimotor Inmediato:</strong>
+            <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: 1.4 }}>
+              <li><strong>PostgreSQL:</strong> Estado cambia a <code>Bloqueado</code> y saldo disponible congelado (RN-01, RN-04).</li>
+              <li><strong>Neo4j:</strong> Proyección de nodos afectados y rastreo de contagio lateral (RN-08).</li>
+              <li><strong>MongoDB:</strong> Apertura de expediente de incidente con bitácora inmutable (RN-09).</li>
+            </ul>
+          </div>
+
           <div className="field">
             <label htmlFor="rec-motivo">Motivo sanitario del retiro e inmovilización</label>
             <textarea
@@ -590,7 +609,19 @@ export const QaRecallPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+          {recallMutation.isError && (
+            <div
+              className="alert alert-bad"
+              style={{ margin: '14px 0 6px 0', padding: '10px 14px', fontSize: 13 }}
+            >
+              <strong>Error al ejecutar recall:</strong>{' '}
+              {recallMutation.error instanceof ApiError
+                ? recallMutation.error.message
+                : 'Ocurrió un error al procesar el retiro del lote.'}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
             <button
               type="button"
               className="btn btn-ghost"
@@ -645,7 +676,19 @@ export const QaRecallPage: React.FC = () => {
               </small>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+            {liberarMutation.isError && (
+              <div
+                className="alert alert-bad"
+                style={{ margin: '14px 0 6px 0', padding: '10px 14px', fontSize: 13 }}
+              >
+                <strong>No se pudo liberar el lote:</strong>{' '}
+                {liberarMutation.error instanceof ApiError
+                  ? liberarMutation.error.message
+                  : 'Verifica que el lote cuente con dictamen favorable vigente (RN-02).'}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
               <button
                 type="button"
                 className="btn btn-ghost"
