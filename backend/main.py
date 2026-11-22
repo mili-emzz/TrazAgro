@@ -6,7 +6,15 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.controllers.analisis import router as analisis_router
+from backend.controllers.auth import router as auth_router
+from backend.controllers.envios import router as envios_router
 from backend.controllers.health import router as health_router
+from backend.controllers.incidentes import router as incidentes_router
+from backend.controllers.lotes import router as lotes_router
+from backend.controllers.recepciones import router as recepciones_router
+from backend.controllers.reconciliacion import router as reconciliacion_router
+from backend.controllers.trazabilidad import router as trazabilidad_router
 from backend.core.config import settings
 from backend.core.database import db_manager
 from backend.core.exceptions import TrazaAgroError
@@ -74,3 +82,11 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 
 app.include_router(health_router)
+app.include_router(auth_router)
+app.include_router(lotes_router)
+app.include_router(recepciones_router)
+app.include_router(analisis_router)
+app.include_router(envios_router)
+app.include_router(incidentes_router)
+app.include_router(trazabilidad_router)
+app.include_router(reconciliacion_router)
