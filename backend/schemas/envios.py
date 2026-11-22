@@ -27,6 +27,16 @@ class EnvioCreateRequest(BaseModel):
     def _clean_chofer(cls, v: str) -> str:
         return sanitize_text(v) or v
 
+    @field_validator("detalles")
+    @classmethod
+    def _no_duplicate_lotes(cls, items: list[EnvioDetalleItemSchema]) -> list[EnvioDetalleItemSchema]:
+        seen: set[str] = set()
+        for item in items:
+            if item.codigo_lote in seen:
+                raise ValueError(f"El lote '{item.codigo_lote}' está duplicado en el detalle del envío.")
+            seen.add(item.codigo_lote)
+        return items
+
 
 class SaldoActualizadoSchema(BaseModel):
     codigo_lote: str

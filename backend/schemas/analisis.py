@@ -44,6 +44,12 @@ class DeterminacionSchema(BaseModel):
     def _require_molecula_or_parametro(self) -> "DeterminacionSchema":
         if not self.molecula and not self.parametro:
             raise ValueError("Cada determinación debe especificar 'molecula' o 'parametro'.")
+        if self.model_extra:
+            for key in self.model_extra.keys():
+                if key.startswith("$") or "." in key:
+                    raise ValueError(
+                        f"Nombre de campo no permitido en determinación (prevención NoSQL injection): '{key}'."
+                    )
         return self
 
 

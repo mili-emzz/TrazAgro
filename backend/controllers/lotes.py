@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Path, Query, status
 from neo4j import Driver
@@ -32,7 +32,7 @@ router = APIRouter(prefix="/api/v1/lotes", tags=["Lotes"])
 
 @router.get("", response_model=list[dict[str, Any]])
 def listar_lotes(
-    estado: str | None = Query(default=None),
+    estado: Literal["Cosechado", "Recibido", "En revision", "Liberado", "Bloqueado", "Retirado"] | None = Query(default=None),
     user: CurrentUser = Depends(get_current_user),
     pg_conn: Connection = Depends(get_pg_connection),
 ) -> list[dict[str, Any]]:

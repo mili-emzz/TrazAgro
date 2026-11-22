@@ -43,6 +43,19 @@ class EvidenciaFotograficaSchema(BaseModel):
     url_archivo: str = Field(..., min_length=5, max_length=300)
     descripcion: str | None = Field(default=None, max_length=200)
 
+    @field_validator("url_archivo")
+    @classmethod
+    def _validate_safe_url(cls, v: str) -> str:
+        lowered = v.strip().lower()
+        if not (lowered.startswith("https://") or lowered.startswith("http://") or lowered.startswith("/")):
+            raise ValueError("La URL de evidencia debe iniciar con https://, http:// o /.")
+        return v.strip()
+
+    @field_validator("tipo_evidencia", "descripcion")
+    @classmethod
+    def _clean_evidencia(cls, v: str | None) -> str | None:
+        return sanitize_text(v)
+
 
 class RecepcionCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
