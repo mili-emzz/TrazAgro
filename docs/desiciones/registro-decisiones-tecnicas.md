@@ -314,3 +314,27 @@ Se adoptó la **Opción B**:
 
 ### Impacto
 * Entrega de aplicación de escritorio funcional en Windows en minutos, conservando el diseño, tipado estricto TypeScript y conexión directa a la API REST FastAPI.
+
+## 14. Estrategia de Pruebas de Integración, Consistencia y Evaluación de Rendimiento (Entregable 8)
+
+### Contexto
+Para cumplir con los criterios obligatorios de las secciones 7.8 y 9 de la guía oficial (`docs/guia-proyecto/guia-proyecto.md`), no basta con validar las consultas de cada motor por separado; se debe comprobar conectividad, integridad por motor, integración multimotor, consistencia ante fallos parciales, manejo de errores negativos y una evaluación básica de rendimiento con condiciones documentadas y reproducibles.
+
+### Opciones consideradas
+* **Opción A:** Ejecutar únicamente pruebas manuales en Swagger UI o Postman sin métricas estructuradas ni automatización repetible.
+* **Opción B:** Implementar una suite híbrida en dos capas:
+  1. Suite automatizada con `pytest` + `TestClient` (`tests/unit/`, `tests/integration/`, `tests/e2e/`) para validación determinista y reproducible de las 11 reglas de negocio (`RN-01` a `RN-11`), ciberseguridad (JWT, RBAC, anti-inyección, XSS) y reconciliación outbox ante fallos parciales simulados.
+  2. Scripts ejecutables en vivo contra Docker (`tests/smoke_frontend_api.py` y `tests/benchmark_rendimiento.py`) con `httpx` para verificar conectividad real y medir latencias (`min`, `promedio`, `mediana`, `p95`, `max`) en flujos individuales y multimotor.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* Se creó `tests/benchmark_rendimiento.py`, un script parametrizable que realiza 3 peticiones de calentamiento (*warmup*) y 25 iteraciones medidas por escenario contra la API FastAPI conectada a los contenedores reales de PostgreSQL 16, MongoDB 7 y Neo4j 5.
+* Se definieron metas explícitas de latencia `P95` alineadas a la arquitectura del proyecto: `< 100 ms` para consultas individuales (PostgreSQL, MongoDB y `/health`), `< 150 ms` para recorridos de grafo en Neo4j (`/adelante` y `/atras-lateral`) y `< 200 ms` para la consolidación multimotor del Expediente 360° (`GET /api/v1/lotes/{codigo_lote}`).
+* El script captura automáticamente los metadatos del entorno (SO, arquitectura, CPU, versión de Python y estado reportado por los tres motores) y permite exportar evidencia estructurada en JSON (`--output`) para el documento de entrega.
+
+### Directriz / Prompt detonante
+"Haz el plan de pruebas siguiendo los criterios de la guía oficial del proyecto, crea el script de rendimiento y actualiza el registro de decisiones técnicas."
+
+### Impacto
+* Cobertura integral y verificable de los 7 ejes obligatorios de pruebas exigidos por la guía del proyecto.
+* Evidencia objetiva y reproducible del rendimiento real del sistema con los tres motores activos, lista para integrarse en el Entregable 8 sin depender de herramientas externas pesadas (como JMeter o k6).
