@@ -53,13 +53,14 @@ Documento de seguimiento del avance, decisiones tomadas y próximos pasos para e
 * Contenido cubierto: 14 endpoints REST `/api/v1/*` con autenticación JWT HS256, control RBAC por rol, aislamiento de productor (`RN-11`), validaciones anti-NoSQLi/XSS, principio de menor privilegio (`trazaagro_app`), reconciliación outbox y suite de 38 pruebas automatizadas aprobadas en `pytest` + validación en vivo contra Docker.
 
 ### Entregable 7: Aplicación e integración (Escritorio / Web)
-* Estatus: Concluido (pendiente prueba visual en vivo contra contenedores)
+* Estatus: Concluido
 * Ubicación local: `frontend/` (React 18 + TypeScript + Vite + TanStack Query + Electron).
-* Contenido cubierto: Aplicación de escritorio nativa con Electron (compatible también con navegador web), Login JWT con presets demo sin auto-registro público, `RoleGuard` RBAC, 5 vistas operativas (Productor, Recepción CEDIS, Laboratorio, QA Consola Recall y Gerencia Auditoría), visor interactivo del grafo Neo4j y modales transaccionales para todas las reglas `RN-01` a `RN-11`. Compilación `tsc -b && vite build` aprobada sin errores.
+* Contenido cubierto: Aplicación de escritorio nativa con Electron (compatible también con navegador web), Login JWT con presets demo sin auto-registro público, `RoleGuard` RBAC, 5 vistas operativas (Productor, Recepción CEDIS, Laboratorio, QA Consola Recall y Gerencia Auditoría), visor interactivo del grafo Neo4j y modales transaccionales para todas las reglas `RN-01` a `RN-11`. Compilación `tsc -b && vite build` aprobada y validada en vivo contra contenedores Docker.
 
 ### Entregable 8: Pruebas, documentación y despliegue
-* Estatus: Pendiente (Siguiente entregable inmediato)
-* Objetivo: Validación integral en vivo de escritorio + API + Docker, revisión final de `docker-compose.yml` y manual de despliegue.
+* Estatus: Concluido
+* Ubicación local: `docs/08-pruebas-despliegue.md`, `tests/benchmark_rendimiento.py`, `docs/pruebas/benchmark_resultados.json` y `README.md`.
+* Contenido cubierto: Validación integral de los 7 ejes de la guía oficial, suite de 38 pruebas automatizadas aprobadas con `pytest` (unitarias, integración, outbox y E2E), prueba smoke en vivo contra Docker (`tests/smoke_frontend_api.py`), evaluación de rendimiento documentada en 2 niveles de volumen (Semilla Base vs. Carga Operativa Media de 500 lotes / 3,601 relaciones) con 3 corridas independientes cada uno, manual paso a paso de despliegue en Windows (Docker Compose, carga de semillas, backend FastAPI y app de escritorio con Electron) y actualización completa del `README.md`.
 
 ## Fuentes y Referencias de Contexto
 * Guía oficial del proyecto: docs/guia-proyecto/guia-proyecto.md
