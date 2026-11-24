@@ -151,7 +151,7 @@ De acuerdo con las secciones 7.8 y 9 de la guía del proyecto, se realizó una e
 * **Equipo Host:** Procesador Intel Core 5 210H (12 núcleos lógicos, arquitectura `AMD64`) con 15.6 GB de memoria RAM física.
 * **Sistema Operativo y Contenedorización:** Windows 11 (Build `10.0.26200`) ejecutando Docker Desktop `v29.9.2` sobre motor Linux (WSL2).
 * **Motores de Bases de Datos en Contenedores:**
-  * **Relacional:** `postgres:16-alpine` (`trazaagro-postgres`, puerto host `5434` -> `5432`).
+  * **Relacional:** `postgres:16-alpine` (`trazaagro-postgres`, puerto host `5434` -> `5432` configurado en `.env` local durante el benchmark; el valor por defecto en `docker-compose.yml` y `.env.example` es `5433`).
   * **Documental:** `mongo:7` (`trazaagro-mongo`, puerto host `27017`).
   * **Grafos:** `neo4j:5-community` (`trazaagro-neo4j`, puertos host `7474` HTTP y `7687` Bolt).
 * **Backend y Cliente de Medición:** Python `3.13.5`, FastAPI + Uvicorn en `http://127.0.0.1:8000` (1 worker asíncrono, conexión local *loopback* con cuenta de menor privilegio `trazaagro_app`), cliente HTTP `httpx`.

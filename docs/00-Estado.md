@@ -45,7 +45,6 @@ Documento de seguimiento del avance, decisiones tomadas y próximos pasos para e
 * Estatus: Concluido
 * Ubicación local: `docs/05-catalogo-consultas.md`
 * Contenido cubierto: Catálogo completo de operaciones individuales por motor (PostgreSQL, MongoDB, Neo4j) y operaciones integradas multimotor (Protocolo de Recall y Expediente 360°), con parámetros, reglas del negocio (`RN-01` a `RN-11`), casos límite y evidencias de ejecución directa en Docker.
-* Siguiente entregable inmediato: Entregable 8 (Pruebas finales, documentación y despliegue).
 
 ### Entregable 6: Backend y API
 * Estatus: Concluido
