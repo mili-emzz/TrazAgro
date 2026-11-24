@@ -227,3 +227,114 @@ Se adoptó la **Opción B**:
 * Arquitectura mucho más profesional y alineada con estándares de seguridad en producción (defensa en profundidad).
 * Protección contra caídas o borrados accidentales de estructuras de datos desde la capa de la API.
 * Transición transparente para el backend: solo requiere actualizar las cadenas de conexión en las variables de entorno sin modificar la lógica de los repositorios.
+
+## 10. Endurecimiento de Seguridad de la API y Autenticación MVP
+
+### Contexto
+Al implementar los 14 endpoints REST v1 y auditarlos con pruebas de seguridad, surgieron tres necesidades concretas: proteger campos polimórficos de MongoDB (`DeterminacionSchema`) frente a inyecciones NoSQL, blindar URLs/textos libres frente a XSS y resolver la autenticación JWT de los 4 roles sin alterar el esquema cerrado de 8 tablas de negocio + 1 tabla outbox definido en el Entregable 4.
+
+### Opciones consideradas
+* **Opción A:** Agregar una décima tabla `usuarios` en PostgreSQL rompiendo la correspondencia exacta con el DDL entregado en el Entregable 4, y dejar validación permisiva en campos dinámicos de laboratorio.
+* **Opción B:** Mantener intacto el esquema SQL oficial usando un catálogo operativo de los 4 roles en `AuthService` con contraseñas protegidas con `bcrypt` (12 rondas) y JWT `HS256` con clave mínima de 256 bits (>= 32 bytes), sumado a validadores estrictos Pydantic v2 (`extra="forbid"`, bloqueo de llaves `$` y `.`, validación de URLs seguras), cabeceras HTTP de seguridad, límite de 5 MB por payload y *rate limiting* en `/auth/login` y `/incidentes/recall`.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* **JWT `HS256` con entropía mínima de 256 bits:** Se actualizó `JWT_SECRET_KEY` a >= 32 bytes en `backend/core/config.py`, `.env.example` y `.env`, eliminando el `InsecureKeyLengthWarning` de PyJWT (RFC 7518).
+* **Validación anti-NoSQLi y anti-XSS:** `DeterminacionSchema` rechaza llaves que inicien con `$` o contengan `.`; `EvidenciaFotograficaSchema.url_archivo` solo acepta prefijos `https://`, `http://` o `/`; `EnvioCreateRequest` rechaza lotes duplicados; y `GET /api/v1/lotes` acota el filtro `estado` a `Literal` con los 6 estados oficiales.
+* **Defensa perimetral HTTP:** Middlewares dedicados inyectan cabeceras de seguridad (`X-Content-Type-Options`, `X-Frame-Options`, `Strict-Transport-Security`, `Content-Security-Policy`, `Referrer-Policy`) y rechazan cuerpos mayores a 5 MB (`413`).
+* **Catálogo operativo MVP:** `AuthService` autentica los 4 perfiles (`QA`, `Recepcion`, `Laboratorio`, `Productor` 1 y 2) mediante `bcrypt.checkpw` en tiempo constante, preservando intactas las tablas del Entregable 4.
+
+### Directriz / Prompt detonante
+"Probar rutas, flujo de datos, integridad y seguridad del backend, y corregir los hallazgos detectados durante la auditoría."
+
+### Impacto
+* 38/38 pruebas automatizadas aprobadas en `pytest`, cubriendo RBAC (`RN-04`), BOLA/IDOR (`RN-11`), inyecciones SQL/NoSQL/Cypher, XSS, fuerza bruta y fallos parciales.
+* Cero advertencias criptográficas en la emisión y verificación de JWT.
+
+## 11. Mapeo de Puerto PostgreSQL en Desarrollo Local (5434) y Aprovisionamiento PoLP en Volúmenes Existentes
+
+### Contexto
+Al conectar la API real contra los contenedores Docker, las conexiones hacia `localhost:5433` eran interceptadas por instancias locales de PostgreSQL en Windows (`postgresql-x64-17` y `postgresql-x64-18`), provocando fallos de autenticación contra `trazaagro_app`. Además, los volúmenes persistentes de Docker habían sido creados antes de incorporar los usuarios de menor privilegio (`trazaagro_app`) en los scripts iniciales.
+
+### Opciones consideradas
+* **Opción A:** Detener o reconfigurar los servicios nativos de PostgreSQL instalados en el sistema operativo anfitrión (Windows).
+* **Opción B:** Aprovechar la parametrización de `docker-compose.yml` (`${POSTGRES_PORT:-5433}:5432`) para mapear el contenedor `trazaagro-postgres` al puerto libre `5434` en `.env`, y aprovisionar el rol `trazaagro_app` directamente en los volúmenes activos de PostgreSQL y MongoDB.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* Se configuró `POSTGRES_PORT=5434` y `POSTGRES_URI=postgresql://trazaagro_app:trazaagro_app_pass@localhost:5434/trazaagro` en el `.env` local, recreando únicamente el contenedor `trazaagro-postgres` sin alterar servicios del host Windows.
+* Se ejecutó la creación y asignación de permisos mínimos de `trazaagro_app` sobre `trazaagro-postgres` (DML en esquema `public`) y `trazaagro-mongo` (rol `readWrite` en base `trazaagro`).
+
+### Directriz / Prompt detonante
+"Resolver el ajuste de entorno local y validar la API en vivo contra los tres contenedores Docker."
+
+### Impacto
+* Eliminación total de conflictos de red con instalaciones locales de PostgreSQL en Windows.
+* Validación exitosa en vivo de la API contra PostgreSQL 16 (`5434`), MongoDB 7 (`27017`) y Neo4j 5 (`7687`) con los tres motores reportando estado `operativo` en `/api/v1/health`.
+
+## 12. Alineación de Frontend por Rol (Login Cerrado, 5 Vistas sobre 4 Roles RBAC) y Poda de Alcance Extra
+
+### Contexto
+Al auditar el prototipo inicial generado en v0 (`index.html`) frente al backend real (`backend/services/auth_service.py` y `docs/03-arquitectura.md`), se detectaron dos desalineaciones importantes: el diseño incluía funcionalidades no especificadas en el MVP (modo offline PWA en Productor, pre-aprobación burocrática del recall por Gerencia y métricas porcentuales no modeladas en BD) y planteaba 5 dashboards mientras que el `AuthService` implementa 4 roles oficiales (`Productor`, `Recepcion`, `Laboratorio`, `QA`), sin endpoint público de auto-registro.
+
+### Opciones consideradas
+* **Opción A:** Modificar `AuthService` y el esquema RBAC para agregar un quinto rol (`Gerencia`) y un endpoint de registro abierto con selección de rol.
+* **Opción B:** Conservar intacto el modelo de seguridad cerrado del backend (4 roles oficiales en JWT sin auto-registro público, protegiendo `RN-04` y `RN-11`), eliminar las funcionalidades inventadas del prototipo y organizar el frontend en React + TypeScript con un Login conectado a `/api/v1/auth/login` (más presets de acceso rápido demo) y 5 vistas operativas donde `QA` accede tanto a la Consola Recall (`/qa/recall`) como al Tablero Ejecutivo de Gerencia (`/qa/gerencia`).
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* **Login cerrado con acceso rápido demo:** Se descartó el registro público con selector de rol para evitar suplantación de privilegios sanitarios (`RN-04`). El login consume `POST /api/v1/auth/login` y ofrece tarjetas de un clic para las cuentas semilla reales.
+* **5 Vistas sobre 4 Roles RBAC:** Productor (`/productor`), Recepción CEDIS (`/cedis`), Laboratorio (`/laboratorio`), QA Consola Recall (`/qa/recall`) y Gerencia Auditoría (`/qa/gerencia`), protegidas por `RoleGuard` y conectadas a los 14 endpoints REST mediante TanStack Query v5.
+* **Poda de alcance extra:** Se eliminaron las alertas offline/PWA, la pre-aprobación de recall y los porcentajes inventados, sustituyéndolos por los datos reales de PostgreSQL, MongoDB y Neo4j.
+
+### Directriz / Prompt detonante
+"Usa CoT y CoVe para verificar si las vistas deben quedar así, elimina lo que no especificamos y van de extra, y haz login sin registro público con las pantallas necesarias por rol."
+
+### Impacto
+* Cero ruptura de contratos ni de las 38 pruebas automatizadas del backend.
+* Cobertura operativa completa mediante modales dedicados para recepción (`RN-07`), despacho fraccionado (`RN-01`, `RN-03`), enmiendas de laboratorio (`RN-05`), bloqueo recall (`RN-08`), cierre de expedientes (`RN-09`) y reconciliación outbox.
+
+## 13. Empaquetado de Escritorio con Electron sobre React + TypeScript + Vite
+
+### Contexto
+Conforme a la guía oficial del proyecto (`docs/guia-proyecto/guia-proyecto.md`), la interfaz gráfica de usuario puede entregarse como aplicación web, móvil o de escritorio. Una vez construida la SPA en `frontend/` con React 18, TypeScript y Vite, se evaluó ofrecerla como aplicación nativa de escritorio en Windows sin duplicar código ni reescribir la capa de presentación.
+
+### Opciones consideradas
+* **Opción A:** Reescribir la interfaz en un framework nativo de Python (PyQt/Tkinter) descartando el avance en React y el visor interactivo.
+* **Opción B:** Envolver la aplicación existente de React + Vite con **Electron** (`electron/main.cjs` y `electron/preload.cjs`), utilizando `HashRouter` y detección de protocolo `file://` en el cliente HTTP para comunicarse con FastAPI en `http://127.0.0.1:8000`.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* Se configuraron los scripts `npm run desktop` (desarrollo integrado con Vite + Electron) y `npm run desktop:prod` (ejecución del paquete compilado `dist/`) en `frontend/package.json`.
+* Se aplicó aislamiento de contexto seguro (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`) en la ventana principal.
+* Se mantuvo la compatibilidad dual: la misma base de código funciona tanto en ventana de escritorio nativa como en navegador web (`npm run dev`).
+
+### Directriz / Prompt detonante
+"En la guía del proyecto dice web, móvil o de escritorio; si se puede convertir así como estamos, dale con Electron por favor."
+
+### Impacto
+* Entrega de aplicación de escritorio funcional en Windows en minutos, conservando el diseño, tipado estricto TypeScript y conexión directa a la API REST FastAPI.
+
+## 14. Estrategia de Pruebas de Integración, Consistencia y Evaluación de Rendimiento (Entregable 8)
+
+### Contexto
+Para cumplir con los criterios obligatorios de las secciones 7.8 y 9 de la guía oficial (`docs/guia-proyecto/guia-proyecto.md`), no basta con validar las consultas de cada motor por separado; se debe comprobar conectividad, integridad por motor, integración multimotor, consistencia ante fallos parciales, manejo de errores negativos y una evaluación básica de rendimiento con condiciones documentadas y reproducibles.
+
+### Opciones consideradas
+* **Opción A:** Ejecutar únicamente pruebas manuales en Swagger UI o Postman sin métricas estructuradas ni automatización repetible.
+* **Opción B:** Implementar una suite híbrida en dos capas:
+  1. Suite automatizada con `pytest` + `TestClient` (`tests/unit/`, `tests/integration/`, `tests/e2e/`) para validación determinista y reproducible de las 11 reglas de negocio (`RN-01` a `RN-11`), ciberseguridad (JWT, RBAC, anti-inyección, XSS) y reconciliación outbox ante fallos parciales simulados.
+  2. Scripts ejecutables en vivo contra Docker (`tests/smoke_frontend_api.py` y `tests/benchmark_rendimiento.py`) con `httpx` para verificar conectividad real y medir latencias (`min`, `promedio`, `mediana`, `p95`, `max`) en flujos individuales y multimotor.
+
+### Decisión tomada
+Se adoptó la **Opción B**:
+* Se creó `tests/benchmark_rendimiento.py`, un script parametrizable que realiza 3 peticiones de calentamiento (*warmup*) y 25 iteraciones medidas por escenario contra la API FastAPI conectada a los contenedores reales de PostgreSQL 16, MongoDB 7 y Neo4j 5.
+* Se definieron metas explícitas de latencia `P95` alineadas a la arquitectura del proyecto: `< 100 ms` para consultas individuales (PostgreSQL, MongoDB y `/health`), `< 150 ms` para recorridos de grafo en Neo4j (`/adelante` y `/atras-lateral`) y `< 200 ms` para la consolidación multimotor del Expediente 360° (`GET /api/v1/lotes/{codigo_lote}`).
+* El script captura automáticamente los metadatos del entorno (SO, arquitectura, CPU, versión de Python y estado reportado por los tres motores) y permite exportar evidencia estructurada en JSON (`--output`) para el documento de entrega.
+
+### Directriz / Prompt detonante
+"Haz el plan de pruebas siguiendo los criterios de la guía oficial del proyecto, crea el script de rendimiento y actualiza el registro de decisiones técnicas."
+
+### Impacto
+* Cobertura integral y verificable de los 7 ejes obligatorios de pruebas exigidos por la guía del proyecto.
+* Evidencia objetiva y reproducible del rendimiento real del sistema con los tres motores activos, lista para integrarse en el Entregable 8 sin depender de herramientas externas pesadas (como JMeter o k6).

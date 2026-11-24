@@ -45,19 +45,22 @@ Documento de seguimiento del avance, decisiones tomadas y próximos pasos para e
 * Estatus: Concluido
 * Ubicación local: `docs/05-catalogo-consultas.md`
 * Contenido cubierto: Catálogo completo de operaciones individuales por motor (PostgreSQL, MongoDB, Neo4j) y operaciones integradas multimotor (Protocolo de Recall y Expediente 360°), con parámetros, reglas del negocio (`RN-01` a `RN-11`), casos límite y evidencias de ejecución directa en Docker.
-* Siguiente entregable inmediato: Entregable 6 (Backend y API).
+* Siguiente entregable inmediato: Entregable 8 (Pruebas finales, documentación y despliegue).
 
 ### Entregable 6: Backend y API
-* Estatus: Pendiente
-* Objetivo: Implementación de controladores, servicios coordinadores y repositorios por motor.
+* Estatus: Concluido
+* Ubicación local: `backend/` (routers en `controllers/`, servicios coordinadores en `services/`, repositorios con drivers directos en `repositories/` y esquemas Pydantic v2 en `schemas/`).
+* Contenido cubierto: 14 endpoints REST `/api/v1/*` con autenticación JWT HS256, control RBAC por rol, aislamiento de productor (`RN-11`), validaciones anti-NoSQLi/XSS, principio de menor privilegio (`trazaagro_app`), reconciliación outbox y suite de 38 pruebas automatizadas aprobadas en `pytest` + validación en vivo contra Docker.
 
-### Entregable 7: Aplicación e integración (Frontend)
-* Estatus: Pendiente
-* Objetivo: Interfaz gráfica conectada al backend que demuestre el flujo completo del MVP.
+### Entregable 7: Aplicación e integración (Escritorio / Web)
+* Estatus: Concluido
+* Ubicación local: `frontend/` (React 18 + TypeScript + Vite + TanStack Query + Electron).
+* Contenido cubierto: Aplicación de escritorio nativa con Electron (compatible también con navegador web), Login JWT con presets demo sin auto-registro público, `RoleGuard` RBAC, 5 vistas operativas (Productor, Recepción CEDIS, Laboratorio, QA Consola Recall y Gerencia Auditoría), visor interactivo del grafo Neo4j y modales transaccionales para todas las reglas `RN-01` a `RN-11`. Compilación `tsc -b && vite build` aprobada y validada en vivo contra contenedores Docker.
 
 ### Entregable 8: Pruebas, documentación y despliegue
-* Estatus: Pendiente
-* Objetivo: Suite de pruebas de integración, docker-compose.yml y manual de despliegue.
+* Estatus: Concluido
+* Ubicación local: `docs/08-pruebas-despliegue.md`, `tests/benchmark_rendimiento.py`, `docs/pruebas/benchmark_resultados.json` y `README.md`.
+* Contenido cubierto: Validación integral de los 7 ejes de la guía oficial, suite de 38 pruebas automatizadas aprobadas con `pytest` (unitarias, integración, outbox y E2E), prueba smoke en vivo contra Docker (`tests/smoke_frontend_api.py`), evaluación de rendimiento documentada en 2 niveles de volumen (Semilla Base vs. Carga Operativa Media de 500 lotes / 3,601 relaciones) con 3 corridas independientes cada uno, manual paso a paso de despliegue en Windows (Docker Compose, carga de semillas, backend FastAPI y app de escritorio con Electron) y actualización completa del `README.md`.
 
 ## Fuentes y Referencias de Contexto
 * Guía oficial del proyecto: docs/guia-proyecto/guia-proyecto.md

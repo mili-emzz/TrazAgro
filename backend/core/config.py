@@ -24,8 +24,8 @@ class Settings(BaseSettings):
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "trazaagro_dev_pass"
 
-    # Seguridad JWT
-    JWT_SECRET_KEY: str = "cambia_esta_clave_en_produccion"
+    # Seguridad JWT (mínimo 32 bytes / 256 bits para HS256)
+    JWT_SECRET_KEY: str = "trazaagro_dev_secret_key_256bits_min_length_2026"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
 
