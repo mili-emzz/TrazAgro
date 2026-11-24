@@ -1,0 +1,586 @@
+{
+  "entorno": {
+    "fecha_utc": "2026-11-24T00:58:56.546856+00:00",
+    "sistema_operativo": "Windows 11 (10.0.26200)",
+    "arquitectura": "AMD64",
+    "procesador": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+    "nucleos_cpu_logicos": 12,
+    "python": "3.13.5",
+    "endpoint_base": "http://127.0.0.1:8000/api/v1",
+    "estado_motores": {
+      "postgresql": {
+        "status": "operativo",
+        "detail": null
+      },
+      "mongodb": {
+        "status": "operativo",
+        "detail": null
+      },
+      "neo4j": {
+        "status": "operativo",
+        "detail": null
+      }
+    }
+  },
+  "metodologia": {
+    "corridas_por_nivel": 3,
+    "iteraciones_por_corrida": 25,
+    "muestras_totales_por_endpoint_y_nivel": 75,
+    "warmup_corrida_inicial": 3,
+    "warmup_corridas_subsecuentes": 1
+  },
+  "niveles": {
+    "semilla_base": {
+      "nombre_nivel": "Nivel 1 - Semilla Base (Entregable 4)",
+      "lote_evaluado": "AGU-P014-260312-01",
+      "volumen_datos": {
+        "postgresql": {
+          "total_filas": 39,
+          "por_tabla": {
+            "productores": 3,
+            "parcelas": 4,
+            "lotes": 6,
+            "recepciones_cedis": 5,
+            "envios": 4,
+            "envios_detalle": 5,
+            "tiendas": 4,
+            "incidentes_bitacora": 6,
+            "eventos_reconciliacion": 2
+          }
+        },
+        "mongodb": {
+          "total_documentos": 12,
+          "por_coleccion": {
+            "actas_recepcion": 5,
+            "analisis_laboratorio": 5,
+            "expedientes_incidentes": 2
+          }
+        },
+        "neo4j": {
+          "total_nodos": 31,
+          "total_relaciones": 38
+        }
+      },
+      "escenarios": {
+        "health_check_3_motores": {
+          "descripcion": "Health Check (PG + Mongo + Neo4j)",
+          "metodo": "GET",
+          "ruta": "/health",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 6.52,
+          "promedio_global_ms": 11.56,
+          "p95_promedio_corridas_ms": 16.75,
+          "max_global_ms": 24.89,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 8.63,
+              "promedio_ms": 14.95,
+              "mediana_ms": 15.0,
+              "p95_ms": 22.53,
+              "max_ms": 24.89
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 6.84,
+              "promedio_ms": 10.46,
+              "mediana_ms": 10.31,
+              "p95_ms": 15.04,
+              "max_ms": 18.7
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 6.52,
+              "promedio_ms": 9.26,
+              "mediana_ms": 8.98,
+              "p95_ms": 12.69,
+              "max_ms": 13.37
+            }
+          ]
+        },
+        "listado_lotes_postgresql": {
+          "descripcion": "Listado de Lotes (PostgreSQL)",
+          "metodo": "GET",
+          "ruta": "/lotes",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 5.08,
+          "promedio_global_ms": 7.08,
+          "p95_promedio_corridas_ms": 8.75,
+          "max_global_ms": 11.65,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 5.08,
+              "promedio_ms": 7.38,
+              "mediana_ms": 6.55,
+              "p95_ms": 10.62,
+              "max_ms": 11.65
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 5.44,
+              "promedio_ms": 6.46,
+              "mediana_ms": 6.39,
+              "p95_ms": 7.51,
+              "max_ms": 7.63
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 6.56,
+              "promedio_ms": 7.4,
+              "mediana_ms": 7.48,
+              "p95_ms": 8.12,
+              "max_ms": 8.23
+            }
+          ]
+        },
+        "analisis_lote_mongodb": {
+          "descripcion": "Historial de Análisis Inmutables (MongoDB)",
+          "metodo": "GET",
+          "ruta": "/analisis/AGU-P014-260312-01",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 7.87,
+          "promedio_global_ms": 10.21,
+          "p95_promedio_corridas_ms": 13.79,
+          "max_global_ms": 24.7,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 8.64,
+              "promedio_ms": 11.77,
+              "mediana_ms": 10.1,
+              "p95_ms": 18.49,
+              "max_ms": 24.7
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 8.13,
+              "promedio_ms": 9.26,
+              "mediana_ms": 9.28,
+              "p95_ms": 10.2,
+              "max_ms": 10.34
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 7.87,
+              "promedio_ms": 9.59,
+              "mediana_ms": 9.01,
+              "p95_ms": 12.69,
+              "max_ms": 14.13
+            }
+          ]
+        },
+        "trazabilidad_adelante_neo4j": {
+          "descripcion": "Trazabilidad Adelante / Recall (Neo4j N-saltos)",
+          "metodo": "GET",
+          "ruta": "/trazabilidad/AGU-P014-260312-01/adelante",
+          "umbral_p95_ms": 150.0,
+          "cumple_umbral": true,
+          "min_global_ms": 9.99,
+          "promedio_global_ms": 14.99,
+          "p95_promedio_corridas_ms": 20.95,
+          "max_global_ms": 30.21,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 10.15,
+              "promedio_ms": 13.32,
+              "mediana_ms": 12.33,
+              "p95_ms": 17.36,
+              "max_ms": 22.35
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 9.99,
+              "promedio_ms": 12.68,
+              "mediana_ms": 12.13,
+              "p95_ms": 15.52,
+              "max_ms": 23.53
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 10.39,
+              "promedio_ms": 18.96,
+              "mediana_ms": 13.54,
+              "p95_ms": 29.98,
+              "max_ms": 30.21
+            }
+          ]
+        },
+        "trazabilidad_atras_lateral_neo4j": {
+          "descripcion": "Trazabilidad Atrás + Contaminación Cruzada (Neo4j)",
+          "metodo": "GET",
+          "ruta": "/trazabilidad/AGU-P014-260312-01/atras-lateral?ventana_dias=1",
+          "umbral_p95_ms": 150.0,
+          "cumple_umbral": true,
+          "min_global_ms": 12.81,
+          "promedio_global_ms": 21.22,
+          "p95_promedio_corridas_ms": 33.15,
+          "max_global_ms": 48.06,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 14.68,
+              "promedio_ms": 18.82,
+              "mediana_ms": 17.42,
+              "p95_ms": 24.33,
+              "max_ms": 42.18
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 12.81,
+              "promedio_ms": 24.33,
+              "mediana_ms": 20.82,
+              "p95_ms": 43.23,
+              "max_ms": 48.06
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 14.47,
+              "promedio_ms": 20.5,
+              "mediana_ms": 17.96,
+              "p95_ms": 31.9,
+              "max_ms": 35.33
+            }
+          ]
+        },
+        "expediente_360_multimotor": {
+          "descripcion": "Expediente 360° Consolidado (PG + Mongo + Neo4j)",
+          "metodo": "GET",
+          "ruta": "/lotes/AGU-P014-260312-01",
+          "umbral_p95_ms": 200.0,
+          "cumple_umbral": true,
+          "min_global_ms": 27.09,
+          "promedio_global_ms": 41.07,
+          "p95_promedio_corridas_ms": 61.35,
+          "max_global_ms": 89.51,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 27.09,
+              "promedio_ms": 36.53,
+              "mediana_ms": 32.07,
+              "p95_ms": 53.5,
+              "max_ms": 56.69
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 30.45,
+              "promedio_ms": 47.28,
+              "mediana_ms": 43.66,
+              "p95_ms": 70.52,
+              "max_ms": 89.51
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 27.93,
+              "promedio_ms": 39.41,
+              "mediana_ms": 37.55,
+              "p95_ms": 60.04,
+              "max_ms": 67.17
+            }
+          ]
+        }
+      },
+      "aprobado": true
+    },
+    "carga_operativa_media": {
+      "nombre_nivel": "Nivel 2 - Carga Operativa Media (500 Lotes Sincronizados)",
+      "lote_evaluado": "AGU-PERF1-260401-02",
+      "volumen_datos": {
+        "postgresql": {
+          "total_filas": 2194,
+          "por_tabla": {
+            "productores": 3,
+            "parcelas": 4,
+            "lotes": 500,
+            "recepciones_cedis": 450,
+            "envios": 400,
+            "envios_detalle": 797,
+            "tiendas": 4,
+            "incidentes_bitacora": 34,
+            "eventos_reconciliacion": 2
+          }
+        },
+        "mongodb": {
+          "total_documentos": 1080,
+          "por_coleccion": {
+            "actas_recepcion": 450,
+            "analisis_laboratorio": 600,
+            "expedientes_incidentes": 30
+          }
+        },
+        "neo4j": {
+          "total_nodos": 921,
+          "total_relaciones": 3601
+        }
+      },
+      "escenarios": {
+        "health_check_3_motores": {
+          "descripcion": "Health Check (PG + Mongo + Neo4j)",
+          "metodo": "GET",
+          "ruta": "/health",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 6.88,
+          "promedio_global_ms": 12.27,
+          "p95_promedio_corridas_ms": 15.83,
+          "max_global_ms": 27.55,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 6.88,
+              "promedio_ms": 8.39,
+              "mediana_ms": 8.08,
+              "p95_ms": 9.71,
+              "max_ms": 11.18
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 9.45,
+              "promedio_ms": 18.86,
+              "mediana_ms": 18.98,
+              "p95_ms": 26.37,
+              "max_ms": 27.55
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 7.99,
+              "promedio_ms": 9.55,
+              "mediana_ms": 9.33,
+              "p95_ms": 11.4,
+              "max_ms": 12.05
+            }
+          ]
+        },
+        "listado_lotes_postgresql": {
+          "descripcion": "Listado de Lotes (PostgreSQL)",
+          "metodo": "GET",
+          "ruta": "/lotes",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 11.13,
+          "promedio_global_ms": 16.46,
+          "p95_promedio_corridas_ms": 26.06,
+          "max_global_ms": 42.1,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 11.13,
+              "promedio_ms": 15.99,
+              "mediana_ms": 14.77,
+              "p95_ms": 22.79,
+              "max_ms": 37.06
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 11.99,
+              "promedio_ms": 17.54,
+              "mediana_ms": 15.66,
+              "p95_ms": 28.98,
+              "max_ms": 42.1
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 12.23,
+              "promedio_ms": 15.85,
+              "mediana_ms": 13.03,
+              "p95_ms": 26.4,
+              "max_ms": 34.19
+            }
+          ]
+        },
+        "analisis_lote_mongodb": {
+          "descripcion": "Historial de Análisis Inmutables (MongoDB)",
+          "metodo": "GET",
+          "ruta": "/analisis/AGU-PERF1-260401-02",
+          "umbral_p95_ms": 100.0,
+          "cumple_umbral": true,
+          "min_global_ms": 7.87,
+          "promedio_global_ms": 11.99,
+          "p95_promedio_corridas_ms": 16.17,
+          "max_global_ms": 23.51,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 8.5,
+              "promedio_ms": 10.04,
+              "mediana_ms": 9.83,
+              "p95_ms": 11.66,
+              "max_ms": 11.83
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 7.87,
+              "promedio_ms": 10.64,
+              "mediana_ms": 10.07,
+              "p95_ms": 15.03,
+              "max_ms": 16.91
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 11.05,
+              "promedio_ms": 15.3,
+              "mediana_ms": 14.08,
+              "p95_ms": 21.81,
+              "max_ms": 23.51
+            }
+          ]
+        },
+        "trazabilidad_adelante_neo4j": {
+          "descripcion": "Trazabilidad Adelante / Recall (Neo4j N-saltos)",
+          "metodo": "GET",
+          "ruta": "/trazabilidad/AGU-PERF1-260401-02/adelante",
+          "umbral_p95_ms": 150.0,
+          "cumple_umbral": true,
+          "min_global_ms": 9.02,
+          "promedio_global_ms": 15.02,
+          "p95_promedio_corridas_ms": 19.79,
+          "max_global_ms": 25.37,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 9.02,
+              "promedio_ms": 10.74,
+              "mediana_ms": 10.54,
+              "p95_ms": 12.88,
+              "max_ms": 13.14
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 9.11,
+              "promedio_ms": 16.44,
+              "mediana_ms": 15.58,
+              "p95_ms": 24.65,
+              "max_ms": 24.71
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 10.82,
+              "promedio_ms": 17.87,
+              "mediana_ms": 18.18,
+              "p95_ms": 21.84,
+              "max_ms": 25.37
+            }
+          ]
+        },
+        "trazabilidad_atras_lateral_neo4j": {
+          "descripcion": "Trazabilidad Atrás + Contaminación Cruzada (Neo4j)",
+          "metodo": "GET",
+          "ruta": "/trazabilidad/AGU-PERF1-260401-02/atras-lateral?ventana_dias=1",
+          "umbral_p95_ms": 150.0,
+          "cumple_umbral": true,
+          "min_global_ms": 21.13,
+          "promedio_global_ms": 42.47,
+          "p95_promedio_corridas_ms": 67.86,
+          "max_global_ms": 429.6,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 27.17,
+              "promedio_ms": 60.6,
+              "mediana_ms": 36.78,
+              "p95_ms": 100.51,
+              "max_ms": 429.6
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 21.13,
+              "promedio_ms": 30.67,
+              "mediana_ms": 27.78,
+              "p95_ms": 52.43,
+              "max_ms": 55.89
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 25.65,
+              "promedio_ms": 36.14,
+              "mediana_ms": 35.24,
+              "p95_ms": 50.65,
+              "max_ms": 54.86
+            }
+          ]
+        },
+        "expediente_360_multimotor": {
+          "descripcion": "Expediente 360° Consolidado (PG + Mongo + Neo4j)",
+          "metodo": "GET",
+          "ruta": "/lotes/AGU-PERF1-260401-02",
+          "umbral_p95_ms": 200.0,
+          "cumple_umbral": true,
+          "min_global_ms": 34.07,
+          "promedio_global_ms": 52.73,
+          "p95_promedio_corridas_ms": 77.26,
+          "max_global_ms": 101.07,
+          "corridas": [
+            {
+              "corrida": 1,
+              "iteraciones": 25,
+              "min_ms": 37.34,
+              "promedio_ms": 67.24,
+              "mediana_ms": 65.9,
+              "p95_ms": 100.03,
+              "max_ms": 101.07
+            },
+            {
+              "corrida": 2,
+              "iteraciones": 25,
+              "min_ms": 34.07,
+              "promedio_ms": 46.66,
+              "mediana_ms": 41.97,
+              "p95_ms": 73.04,
+              "max_ms": 85.29
+            },
+            {
+              "corrida": 3,
+              "iteraciones": 25,
+              "min_ms": 36.55,
+              "promedio_ms": 44.3,
+              "mediana_ms": 41.39,
+              "p95_ms": 58.7,
+              "max_ms": 63.93
+            }
+          ]
+        }
+      },
+      "aprobado": true,
+      "tiempo_inyeccion_lote_ms": 1126.86
+    }
+  },
+  "aprobado": true
+}
