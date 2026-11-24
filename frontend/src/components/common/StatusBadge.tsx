@@ -81,8 +81,8 @@ export const SyncBadge: React.FC<{ sincronizacion?: Record<string, string> | nul
     <span className={`badge ${hasPending ? 's-warn' : 's-ok'}`} title={JSON.stringify(sincronizacion)}>
       {hasPending ? <AlertTriangle size={13} /> : <RefreshCw size={13} />}
       {hasPending
-        ? 'Sincronización parcial (pendiente reconciliación)'
-        : 'PG + Mongo + Neo4j sincronizados'}
+        ? 'Sincronización parcial (pendiente de actualización)'
+        : 'Información sincronizada'}
     </span>
   );
 };

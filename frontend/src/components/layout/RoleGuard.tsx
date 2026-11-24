@@ -35,12 +35,10 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) 
         >
           <ShieldAlert size={24} />
         </div>
-        <h2>Acceso restringido por control RBAC (403 Forbidden)</h2>
+        <h2>Acceso restringido</h2>
         <p className="lead" style={{ marginTop: 8 }}>
-          Tu sesión actual tiene el rol <strong className="mono">{user.role}</strong> (
-          {user.nombre}). Esta vista requiere permisos de{' '}
-          <strong className="mono">{allowedRoles.join(' o ')}</strong> conforme a las reglas{' '}
-          <span className="rn">RN-04</span> y <span className="rn">RN-11</span>.
+          Tu sesión actual tiene el rol <strong>{user.role}</strong> ({user.nombre}). Esta vista
+          requiere permisos de <strong>{allowedRoles.join(' o ')}</strong>.
         </p>
         <div style={{ marginTop: 18 }}>
           <Link to={safeRoute} className="btn btn-primary">

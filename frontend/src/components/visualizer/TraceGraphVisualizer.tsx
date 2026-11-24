@@ -41,18 +41,18 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     {
       id: 'parcela',
       label: huertaName,
-      category: ':Parcela · :Productor (Neo4j)',
+      category: 'Parcela y productor',
       variant: 'origin',
       details: {
         Productor: productorName,
         'Código SENASICA': senasicaCode,
-        'Regla verificada': 'RN-06 (1 lote -> 1 parcela)',
+        Origen: 'Parcela única verificada',
       },
     },
     {
       id: 'lote',
       label: lote.codigo_lote,
-      category: ':Lote (Nodo Maestro)',
+      category: 'Lote maestro',
       variant: lote.estado === 'Bloqueado' ? 'hot' : 'origin',
       details: {
         Estado: lote.estado,
@@ -64,12 +64,12 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     {
       id: 'vehiculo',
       label: placasEntrada,
-      category: ':Vehiculo [:TRASLADADO_EN]',
+      category: 'Transporte de entrada',
       variant: hasSiblings ? 'hot' : 'default',
       details: {
         Placas: placasEntrada,
         'Temperatura arribo': recepcion_sql ? `${recepcion_sql.temperatura_llegada_c} °C` : 'N/A',
-        'Riesgo lateral (RN-08)': hasSiblings
+        'Riesgo lateral': hasSiblings
           ? `Compartido con ${hermanos.length} lote(s) hermano(s)`
           : 'Sin cruce detectado',
       },
@@ -77,7 +77,7 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     {
       id: 'cuarto',
       label: cuartoFrio,
-      category: ':CuartoFrio [:ALMACENADO_EN]',
+      category: 'Cámara frigorífica',
       variant: hasSiblings ? 'hot' : 'default',
       details: {
         'Cámara frigorífica': cuartoFrio,
@@ -91,13 +91,13 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     nodes.push({
       id: 'lab',
       label: `${vigenteAnalisis.folio_analisis}`,
-      category: ':Laboratorio [:EMITIO_ANALISIS]',
+      category: 'Laboratorio',
       variant: vigenteAnalisis.dictamen_general === 'No Conforme' ? 'hot' : 'lab',
       details: {
         Laboratorio: vigenteAnalisis.laboratorio?.nombre ?? 'Laboratorio Acreditado',
         Estudio: vigenteAnalisis.tipo_estudio,
         Dictamen: vigenteAnalisis.dictamen_general,
-        Versión: `V${vigenteAnalisis.version} (RN-05)`,
+        Versión: `V${vigenteAnalisis.version}`,
       },
     });
   }
@@ -107,7 +107,7 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     nodes.push({
       id: 'envios',
       label: enviosCodes,
-      category: ':Envio [:DIVIDIDO_EN]',
+      category: 'Órdenes de envío',
       variant: 'default',
       details: {
         'Órdenes de envío': enviosCodes,
@@ -118,7 +118,7 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     nodes.push({
       id: 'tiendas',
       label: `${destinos.length} tienda(s) destino`,
-      category: ':Tienda [:ENTREGADO_A]',
+      category: 'Puntos de venta',
       variant: lote.estado === 'Bloqueado' ? 'hot' : 'store',
       details: {
         Sucursales: destinos
@@ -134,8 +134,7 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
     <div className="card" style={{ marginBottom: 16 }}>
       <div className="card-head">
         <div className="left">
-          <h2>Ruta física del lote en grafo</h2>
-          <span className="op">Neo4j · Topología Interactiva</span>
+          <h2>Ruta física del lote</h2>
         </div>
         <span style={{ fontSize: 12, color: 'var(--muted)' }}>
           Haz clic en cualquier nodo para inspeccionar sus propiedades
@@ -173,9 +172,8 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
       </div>
 
       <p className="lead" style={{ fontSize: 12, marginTop: 8 }}>
-        En rojo: nodos con riesgo sanitario o recursos compartidos en contaminación cruzada (
-        <span className="rn">RN-08</span>). En verde: origen fitosanitario validado (
-        <span className="rn">RN-06</span>).
+        En rojo: nodos con riesgo sanitario o recursos compartidos. En verde: origen fitosanitario
+        validado.
       </p>
 
       {selectedNode && (

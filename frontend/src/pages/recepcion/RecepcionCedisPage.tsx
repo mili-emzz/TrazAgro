@@ -5,7 +5,6 @@ import {
   CheckCircle,
   ClipboardCheck,
   Clock,
-  Lightbulb,
   Lock,
   Scale,
   Thermometer,
@@ -72,7 +71,7 @@ export const RecepcionCedisPage: React.FC = () => {
       setFeedback({
         type: res.alerta_cadena_frio ? 'warn' : 'ok',
         text: res.alerta_cadena_frio
-          ? `ALERTA RN-07: Recepción ${res.folio_recepcion} fuera de rango (${res.temperatura_llegada_c} °C). Lote ${res.codigo_lote} retenido en estado '${res.estado_lote_resultante}'.`
+          ? `ALERTA DE CADENA DE FRÍO: Recepción ${res.folio_recepcion} fuera de rango (${res.temperatura_llegada_c} °C). Lote ${res.codigo_lote} retenido en estado '${res.estado_lote_resultante}'.`
           : `Recepción ${res.folio_recepcion} registrada conforme (${res.temperatura_llegada_c} °C). Estado del lote: ${res.estado_lote_resultante}.`,
       });
       queryClient.invalidateQueries({ queryKey: ['lotes'] });
@@ -93,7 +92,7 @@ export const RecepcionCedisPage: React.FC = () => {
       const nuevoSaldo = res.saldos_actualizados[0]?.saldo_kg_restante ?? 0;
       setFeedback({
         type: 'ok',
-        text: `Despacho ${res.codigo_envio} por ${res.total_kg} kg procesado con bloqueo ACID (FOR UPDATE). Nuevo saldo disponible: ${nuevoSaldo.toLocaleString()} kg.`,
+        text: `Despacho ${res.codigo_envio} por ${res.total_kg} kg procesado correctamente. Nuevo saldo disponible: ${nuevoSaldo.toLocaleString()} kg.`,
       });
       const nextNum = String(Number(envCodigo.slice(-4)) + 1).padStart(4, '0');
       setEnvCodigo(`ENV-2026-${nextNum}`);
@@ -102,7 +101,7 @@ export const RecepcionCedisPage: React.FC = () => {
     onError: (err) => {
       setFeedback({
         type: 'bad',
-        text: err instanceof ApiError ? err.message : 'Error al procesar despacho (RN-01 / RN-03).',
+        text: err instanceof ApiError ? err.message : 'Error al procesar el despacho.',
       });
     },
   });
@@ -134,7 +133,7 @@ export const RecepcionCedisPage: React.FC = () => {
       ],
       observaciones_inspector:
         tempVal < 4 || tempVal > 8
-          ? `ALERTA RN-07: Ruptura de cadena de frío (${tempVal} °C). Retenido en cuarentena.`
+          ? `ALERTA: Ruptura de cadena de frío (${tempVal} °C). Retenido en cuarentena.`
           : 'Llegada dentro de rango térmico normativo 4.0 a 8.0 °C.',
     });
   };
@@ -175,16 +174,6 @@ export const RecepcionCedisPage: React.FC = () => {
 
   return (
     <section aria-label="Panel de Recepción y Despacho en CEDIS">
-      <div className="note">
-        <Lightbulb size={18} />
-        <p>
-          <strong>Recepción · RN-07, RN-01, RN-03:</strong> el acta guarda la temperatura por tarima
-          en MongoDB y el pesaje oficial en PostgreSQL. Si el arribo sale de 4.0–8.0 °C, el lote
-          queda <em>Retenido</em> y pasa a <em>En revisión</em>. Solo se pueden despachar lotes{' '}
-          <em>Liberado</em> con saldo mayor a 0.
-        </p>
-      </div>
-
       <div className="page-head">
         <div>
           <p className="eyebrow">CEDIS · Operación de Báscula y Cámara Fría</p>
@@ -223,7 +212,7 @@ export const RecepcionCedisPage: React.FC = () => {
       <div className="alert alert-warn" role="alert" style={{ marginBottom: 16 }}>
         <Thermometer size={20} />
         <div>
-          <h2>Lote retenido: ruptura de cadena de frío (RN-07)</h2>
+          <h2>Lote retenido: ruptura de cadena de frío</h2>
           <p>
             <span className="mono">AGU-P015-260315-01</span> ·{' '}
             <span className="mono">REC-2026-0107</span> · promedio <strong>11.4 °C</strong> (rango
@@ -280,7 +269,6 @@ export const RecepcionCedisPage: React.FC = () => {
           <div className="card-head">
             <div className="left">
               <h2>Inventario por lote</h2>
-              <span className="op">OP-PG-01 · OP-PG-03</span>
             </div>
           </div>
           <div className="table-wrap">
@@ -332,7 +320,7 @@ export const RecepcionCedisPage: React.FC = () => {
                           title={
                             canDispatch
                               ? 'Abrir formulario de despacho fraccionado'
-                              : `Deshabilitado por RN-01: estado actual '${l.estado}'`
+                              : `Disponible solo para lotes liberados (estado actual: '${l.estado}')`
                           }
                           onClick={() => {
                             setDespachoLote(l);
@@ -351,8 +339,7 @@ export const RecepcionCedisPage: React.FC = () => {
           <p className="lock">
             <Lock size={14} />
             <span>
-              <span className="rn">RN-01</span> El botón se desactiva para lotes no liberados; el
-              backend lo vuelve a validar con <span className="mono">SELECT ... FOR UPDATE</span>.
+              Solo se pueden despachar lotes liberados con saldo disponible.
             </span>
           </p>
         </div>
@@ -361,7 +348,6 @@ export const RecepcionCedisPage: React.FC = () => {
           <div className="card-head">
             <div className="left">
               <h2>Perfil térmico y acta</h2>
-              <span className="op">OP-MG-03</span>
             </div>
             <select
               className="input mono"
@@ -408,10 +394,10 @@ export const RecepcionCedisPage: React.FC = () => {
               })}
 
               <p className="lead" style={{ fontSize: 12 }}>
-                Rango permitido 4.0–8.0 °C (<span className="rn">RN-07</span>).
+                Rango permitido 4.0–8.0 °C.
               </p>
 
-              <h3 style={{ marginTop: 12 }}>Evaluación sensorial (MongoDB)</h3>
+              <h3 style={{ marginTop: 12 }}>Evaluación sensorial</h3>
               <ul className="list">
                 <li>
                   <div>
@@ -455,7 +441,7 @@ export const RecepcionCedisPage: React.FC = () => {
       <Modal
         open={openRecepcion}
         title="Registrar Acta de Recepción en CEDIS"
-        subtitle="POST /api/v1/recepciones · Evalúa cadena de frío (RN-07) y sincroniza PG + MongoDB + Neo4j"
+        subtitle="Registra el peso, temperatura por tarima y evaluación sensorial del arribo"
         onClose={() => setOpenRecepcion(false)}
       >
         <form onSubmit={handleSubmitRecepcion}>
@@ -565,8 +551,8 @@ export const RecepcionCedisPage: React.FC = () => {
                 }}
               >
                 {isTempOut
-                  ? '⚠ ALERTA RN-07: Temperatura fuera de 4.0–8.0 °C. El lote quedará en CUARENTENA (En revisión / Retenido).'
-                  : '✓ CUMPLE NORMA (RN-07): Temperatura dentro de rango 4.0–8.0 °C. Dictamen Conforme.'}
+                  ? '⚠ ALERTA: Temperatura fuera de 4.0–8.0 °C. El lote quedará en CUARENTENA (En revisión / Retenido).'
+                  : '✓ Temperatura dentro de rango (4.0–8.0 °C). Dictamen Conforme.'}
               </div>
             </div>
 
@@ -643,7 +629,7 @@ export const RecepcionCedisPage: React.FC = () => {
       <Modal
         open={Boolean(despachoLote)}
         title={`Despacho Fraccionado · ${despachoLote?.codigo_lote ?? ''}`}
-        subtitle="POST /api/v1/envios · Transacción ACID con SELECT ... FOR UPDATE (RN-01, RN-03)"
+        subtitle="Asigna el envío y descuenta el peso del saldo disponible del lote"
         onClose={() => setDespachoLote(null)}
       >
         {despachoLote && (
@@ -737,7 +723,7 @@ export const RecepcionCedisPage: React.FC = () => {
                   required
                 />
                 <small>
-                  <span className="rn">RN-03</span> No puede exceder el saldo disponible.
+                  No puede exceder el saldo disponible.
                 </small>
               </div>
             </div>

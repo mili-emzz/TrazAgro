@@ -59,17 +59,17 @@ export const AppLayout: React.FC = () => {
             </span>
             <span>
               TrazaAgro
-              <small>Trazabilidad políglota · PG + Mongo + Neo4j</small>
+              <small>Trazabilidad de Aguacate Hass</small>
             </span>
           </NavLink>
 
           {health && (
             <span
               className={`badge ${health.status === 'ok' ? 's-ok' : 's-warn'}`}
-              title={`PostgreSQL: ${health.engines?.postgresql} | MongoDB: ${health.engines?.mongodb} | Neo4j: ${health.engines?.neo4j}`}
+              title={`Estado de servicios: ${health.status === 'ok' ? 'Operativos' : 'Con incidencias'}`}
             >
               <Activity size={13} />
-              3 Motores: {health.status === 'ok' ? 'Online' : 'Degradado'}
+              Sistema: {health.status === 'ok' ? 'En línea' : 'Degradado'}
             </span>
           )}
         </div>

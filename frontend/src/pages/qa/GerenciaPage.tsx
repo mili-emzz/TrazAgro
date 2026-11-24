@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, CircleAlert, Download, FileSignature, Lightbulb, ShieldAlert } from 'lucide-react';
+import { Check, CircleAlert, Download, FileSignature, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { listarLotesApi, obtenerExpediente360Api } from '../../api/lotes';
 import { cerrarIncidenteApi } from '../../api/operaciones';
@@ -49,7 +49,7 @@ export const GerenciaPage: React.FC = () => {
       setCerrarFolioTarget(null);
       setFeedback({
         type: 'ok',
-        text: `Expediente ${res.folio_incidente} cerrado formalmente en MongoDB y bitácora PostgreSQL cumpliendo RN-09 (Causa raíz + acciones + firmas).`,
+        text: `Expediente ${res.folio_incidente} cerrado formalmente con causa raíz, acciones correctivas y firmas.`,
       });
       queryClient.invalidateQueries({ queryKey: ['expediente-gerencia'] });
       queryClient.invalidateQueries({ queryKey: ['expediente-qa'] });
@@ -57,7 +57,7 @@ export const GerenciaPage: React.FC = () => {
     onError: (err) => {
       setFeedback({
         type: 'bad',
-        text: err instanceof ApiError ? err.message : 'Error al cerrar expediente (RN-09).',
+        text: err instanceof ApiError ? err.message : 'Error al cerrar el expediente.',
       });
     },
   });
@@ -124,18 +124,6 @@ export const GerenciaPage: React.FC = () => {
 
   return (
     <section aria-label="Tablero de Gerencia y Cumplimiento">
-      <div className="note">
-        <Lightbulb size={18} />
-        <p>
-          <strong>Gerencia · RN-09:</strong> tablero de auditoría ejecutiva y cumplimiento.
-          Supervisa la integridad multimotor y firma el cierre formal de expedientes. El cierre se
-          activa solo cuando existen <span className="mono">causa_raiz</span>,{' '}
-          <span className="mono">acciones_correctivas</span> y{' '}
-          <span className="mono">firmas_cierre</span> (validadas por{' '}
-          <span className="mono">$jsonSchema</span> en MongoDB).
-        </p>
-      </div>
-
       <div className="page-head">
         <div>
           <p className="eyebrow">Dirección de operaciones</p>
@@ -185,7 +173,7 @@ export const GerenciaPage: React.FC = () => {
           <div className="label">Lotes inmovilizados</div>
           <div className="value">{lotesBloqueados.length} lotes</div>
           <div className="meta">
-            {kgProtegidos.toLocaleString()} kg protegidos · OP-PG-04
+            {kgProtegidos.toLocaleString()} kg protegidos
           </div>
         </div>
 
@@ -193,7 +181,7 @@ export const GerenciaPage: React.FC = () => {
           <div className="label">Cuadre de inventario</div>
           <div className="value">100%</div>
           <div className="meta">
-            {lotes.length} de {lotes.length} lotes · OP-PG-03
+            {lotes.length} de {lotes.length} lotes
           </div>
           <div className="progress" role="img" aria-label="100 por ciento">
             <span style={{ width: '100%' }} />
@@ -203,13 +191,13 @@ export const GerenciaPage: React.FC = () => {
         <div className="card kpi">
           <div className="label">Integridad de origen</div>
           <div className="value">0</div>
-          <div className="meta">lotes sin parcela · OP-N4J-03 (RN-06)</div>
+          <div className="meta">lotes sin parcela asignada</div>
         </div>
 
         <div className="card kpi">
           <div className="label">Rupturas de frío</div>
           <div className="value">{lotesRevision.length || 1}</div>
-          <div className="meta">retenida a tiempo · OP-PG-02 (RN-07)</div>
+          <div className="meta">retenidos a tiempo en recepción</div>
         </div>
       </div>
 
@@ -217,20 +205,19 @@ export const GerenciaPage: React.FC = () => {
         <div className="card-head">
           <div className="left">
             <h2>Expedientes de incidente sanitario</h2>
-            <span className="op">OP-MG-04 · PATCH /api/v1/incidentes/&#123;folio&#125;/cerrar</span>
           </div>
         </div>
         <div className="table-wrap">
           <table>
             <caption className="sr-only">
-              Expedientes de incidentes con estado, requisitos de cierre RN-09 y acción de firma
+              Expedientes de incidentes con estado, requisitos de cierre y acción de firma
             </caption>
             <thead>
               <tr>
                 <th scope="col">Folio</th>
                 <th scope="col">Lote origen</th>
                 <th scope="col">Motivo</th>
-                <th scope="col">Requisitos de cierre (RN-09)</th>
+                <th scope="col">Requisitos de cierre</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Acción</th>
               </tr>
@@ -293,7 +280,7 @@ export const GerenciaPage: React.FC = () => {
       <Modal
         open={Boolean(cerrarFolioTarget)}
         title={`Cierre Formal de Expediente · ${cerrarFolioTarget ?? ''}`}
-        subtitle="PATCH /api/v1/incidentes/{folio}/cerrar · Exige causa raíz, acciones correctivas y firmas mancomunadas (RN-09)"
+        subtitle="Exige causa raíz, acciones correctivas y firmas mancomunadas de QA y Gerencia"
         onClose={() => setCerrarFolioTarget(null)}
       >
         {cerrarFolioTarget && (
@@ -313,7 +300,7 @@ export const GerenciaPage: React.FC = () => {
             }}
           >
             <div className="field">
-              <label htmlFor="c-causa">Causa raíz dictaminada (Obligatoria por RN-09)</label>
+              <label htmlFor="c-causa">Causa raíz dictaminada (Obligatoria)</label>
               <textarea
                 id="c-causa"
                 className="input"
@@ -379,7 +366,7 @@ export const GerenciaPage: React.FC = () => {
                 <strong>Error al cerrar expediente:</strong>{' '}
                 {cerrarMutation.error instanceof ApiError
                   ? cerrarMutation.error.message
-                  : 'Verifica los requisitos de la regla RN-09 (causa raíz y acciones correctivas).'}
+                  : 'Verifica que la causa raíz y las acciones correctivas estén completas.'}
               </div>
             )}
 
@@ -397,7 +384,7 @@ export const GerenciaPage: React.FC = () => {
                 disabled={cerrarMutation.isPending}
               >
                 {cerrarMutation.isPending
-                  ? 'Validando RN-09 en MongoDB...'
+                  ? 'Validando y cerrando expediente...'
                   : 'Firmar y cerrar expediente'}
               </button>
             </div>

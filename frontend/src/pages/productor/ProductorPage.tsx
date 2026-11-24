@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, Lightbulb, Plus } from 'lucide-react';
+import { Eye, EyeOff, Plus } from 'lucide-react';
 import { crearLoteApi, listarLotesApi, obtenerExpediente360Api } from '../../api/lotes';
 import { consultarAnalisisApi } from '../../api/operaciones';
 import { ApiError } from '../../api/client';
@@ -86,7 +86,7 @@ export const ProductorPage: React.FC = () => {
     onSuccess: (created) => {
       setFeedback({
         type: 'ok',
-        text: `Lote ${created.codigo_lote} registrado en PostgreSQL y proyectado en Neo4j con parcela #${created.parcela_id} (RN-06).`,
+        text: `Lote ${created.codigo_lote} registrado correctamente con parcela #${created.parcela_id}.`,
       });
       const nextSeq = String(Number(consecutivo) + 1).padStart(2, '0');
       setConsecutivo(nextSeq);
@@ -115,16 +115,6 @@ export const ProductorPage: React.FC = () => {
 
   return (
     <section aria-label="Panel del Productor">
-      <div className="note">
-        <Lightbulb size={18} />
-        <p>
-          <strong>Productor · RN-11 y RN-06:</strong> vista móvil filtrada en el backend por{' '}
-          <span className="mono">productor_id={user?.productor_id ?? 1}</span>. Solo consulta sus
-          propios lotes, su estado y el dictamen de sus análisis. No tiene acceso a tiendas, precios
-          ni otros productores. Cada lote exige una única parcela de origen.
-        </p>
-      </div>
-
       {feedback && (
         <div
           className={`alert ${feedback.type === 'ok' ? 'alert-ok' : 'alert-bad'}`}
@@ -173,7 +163,6 @@ export const ProductorPage: React.FC = () => {
           <div className="card">
             <div className="card-head">
               <h2>Mis lotes</h2>
-              <span className="op">GET /api/v1/lotes</span>
             </div>
             {isLoading ? (
               <p className="lead">Cargando lotes del productor...</p>
@@ -213,7 +202,6 @@ export const ProductorPage: React.FC = () => {
           <form id="form-cosecha" className="card" onSubmit={handleCrearLote}>
             <div className="card-head">
               <h2>Registrar cosecha en origen</h2>
-              <span className="op">POST /api/v1/lotes</span>
             </div>
 
             <div className="grid half" style={{ gap: '0 12px' }}>
@@ -264,7 +252,7 @@ export const ProductorPage: React.FC = () => {
                   ))}
                 </select>
                 <small id="f-parc-h">
-                  <span className="rn">RN-06</span> Cardinalidad estricta: un lote, una parcela.
+                  Un lote corresponde a una sola parcela de origen.
                 </small>
               </div>
 
@@ -338,7 +326,7 @@ export const ProductorPage: React.FC = () => {
               className="btn btn-primary"
               disabled={crearMutation.isPending}
             >
-              {crearMutation.isPending ? 'Guardando en PG y Neo4j...' : 'Guardar lote'}
+              {crearMutation.isPending ? 'Guardando lote...' : 'Guardar lote'}
             </button>
           </form>
 
@@ -346,7 +334,6 @@ export const ProductorPage: React.FC = () => {
             <div className="card-head">
               <div className="left">
                 <h2>Dictamen de mis análisis</h2>
-                <span className="op">GET /api/v1/analisis/&#123;lote&#125;</span>
               </div>
               <select
                 className="input mono"
@@ -393,8 +380,8 @@ export const ProductorPage: React.FC = () => {
             <p className="lock">
               <EyeOff size={15} />
               <span>
-                <span className="rn">RN-11</span> Los destinos comerciales, precios y otros
-                productores están ocultos por confidencialidad.
+                Los destinos comerciales, precios y otros productores están ocultos por
+                confidencialidad.
               </span>
             </p>
           </div>
@@ -404,7 +391,7 @@ export const ProductorPage: React.FC = () => {
       <Modal
         open={Boolean(selectedLoteModal)}
         title={`Ficha de Lote · ${selectedLoteModal ?? ''}`}
-        subtitle="Resumen de estado de recepción y calidad para el productor (RN-11)"
+        subtitle="Resumen de estado de recepción y calidad"
         onClose={() => setSelectedLoteModal(null)}
       >
         {!detalleModal ? (

@@ -15,7 +15,7 @@ export interface DemoAccountPreset {
 export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   {
     label: 'Productor Michoacán (P014)',
-    subtitle: 'Aguacateros Unidos de Michoacán · RN-06, RN-11',
+    subtitle: 'Aguacateros Unidos de Michoacán',
     username: 'productor_michoacan',
     password: 'TrazaProd1!',
     role: 'Productor',
@@ -23,7 +23,7 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   },
   {
     label: 'Productor Tancítaro (P018)',
-    subtitle: 'Huertas del Tancítaro · Aislamiento RN-11',
+    subtitle: 'Huertas del Tancítaro',
     username: 'productor_tancitaro',
     password: 'TrazaProd2!',
     role: 'Productor',
@@ -31,7 +31,7 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   },
   {
     label: 'Recepción y Almacén CEDIS',
-    subtitle: 'Carlos Herrera · Cadena de frío RN-07 y Despacho RN-01',
+    subtitle: 'Carlos Herrera · Recepción y despacho',
     username: 'recepcion_cedis',
     password: 'TrazaRec2026!',
     role: 'Recepcion',
@@ -39,7 +39,7 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   },
   {
     label: 'Laboratorio Externo',
-    subtitle: 'Q.F.B. Sofía Ríos (Lab AgroBio) · Versionado inmutable RN-05',
+    subtitle: 'Q.F.B. Sofía Ríos · Lab AgroBio',
     username: 'lab_agrobio',
     password: 'TrazaLab2026!',
     role: 'Laboratorio',
@@ -47,7 +47,7 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   },
   {
     label: 'QA · Consola Recall',
-    subtitle: 'Ing. Valeria Mendoza · Expediente 360° y Bloqueo Atómico RN-04/RN-08',
+    subtitle: 'Ing. Valeria Mendoza · Calidad y retiros',
     username: 'qa_admin',
     password: 'TrazaQA2026!',
     role: 'QA',
@@ -55,7 +55,7 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
   },
   {
     label: 'Gerencia · Auditoría e Incidentes',
-    subtitle: 'Supervisión Ejecutiva · Cierre formal con causa raíz y firmas RN-09',
+    subtitle: 'Supervisión Ejecutiva · Auditoría e incidentes',
     username: 'qa_admin',
     password: 'TrazaQA2026!',
     role: 'QA',

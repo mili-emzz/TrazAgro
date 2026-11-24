@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   Download,
   Info,
-  Lightbulb,
   Lock,
   OctagonAlert,
   RefreshCw,
@@ -45,7 +44,7 @@ export const QaRecallPage: React.FC = () => {
   // Modal de liberación de lote (RN-02, RN-04)
   const [liberarTarget, setLiberarTarget] = useState<string | null>(null);
   const [liberarMotivo, setLiberarMotivo] = useState(
-    'Liberación sanitaria aprobada tras verificación de análisis conformes vigentes e inspección de vida de anaquel (RN-02).'
+    'Liberación sanitaria aprobada tras verificación de análisis conformes vigentes e inspección de vida de anaquel.'
   );
 
   const { data: lotes = [] } = useQuery({
@@ -81,7 +80,7 @@ export const QaRecallPage: React.FC = () => {
       const numTiendas = res.tiendas_afectadas.length;
       setFeedback({
         type: 'ok',
-        text: `Protocolo de Recall ejecutado (${res.folio_incidente}): Lote ${recallLoteTarget} y ${numHermanos} lote(s) hermano(s) bloqueados en PostgreSQL, expediente abierto en MongoDB y ${numTiendas} tienda(s) identificada(s) en Neo4j.`,
+        text: `Protocolo de Recall ejecutado (${res.folio_incidente}): Lote ${recallLoteTarget} y ${numHermanos} lote(s) hermano(s) bloqueados, expediente abierto y ${numTiendas} tienda(s) identificada(s).`,
       });
       queryClient.invalidateQueries({ queryKey: ['lotes'] });
       queryClient.invalidateQueries({ queryKey: ['expediente-qa'] });
@@ -103,7 +102,7 @@ export const QaRecallPage: React.FC = () => {
       setLiberarTarget(null);
       setFeedback({
         type: 'ok',
-        text: `Lote ${res.codigo_lote} cambiado de '${res.estado_previo}' a '${res.estado_actual}' (${res.folio_evento}) tras validar certificados conformes (RN-02).`,
+        text: `Lote ${res.codigo_lote} cambiado de '${res.estado_previo}' a '${res.estado_actual}' (${res.folio_evento}) tras validar certificados conformes.`,
       });
       queryClient.invalidateQueries({ queryKey: ['lotes'] });
       queryClient.invalidateQueries({ queryKey: ['expediente-qa'] });
@@ -115,7 +114,7 @@ export const QaRecallPage: React.FC = () => {
         text:
           err instanceof ApiError
             ? err.message
-            : 'No se pudo liberar el lote (verifica RN-02: requiere análisis vigente Conforme).',
+            : 'No se pudo liberar el lote (requiere análisis vigente Conforme).',
       });
     },
   });
@@ -177,16 +176,6 @@ export const QaRecallPage: React.FC = () => {
 
   return (
     <section aria-label="Consola de Recall y Expediente 360 de QA">
-      <div className="note">
-        <Lightbulb size={18} />
-        <p>
-          <strong>QA · OP-INT-01 y OP-INT-02:</strong> el expediente 360° une PostgreSQL, MongoDB y
-          Neo4j en una sola vista. El rastreo hacia adelante va primero porque es lo más urgente
-          para retirar producto de anaquel. Bloquear el lote y sus hermanos por contagio lateral es
-          una acción atómica (<span className="rn">RN-04</span>, <span className="rn">RN-08</span>).
-        </p>
-      </div>
-
       {feedback && (
         <div
           className={`alert ${
@@ -234,7 +223,7 @@ export const QaRecallPage: React.FC = () => {
 
       <div className="page-head">
         <div>
-          <p className="eyebrow">Expediente 360° Consolidado (PG + Mongo + Neo4j)</p>
+          <p className="eyebrow">Expediente 360° Consolidado</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <h1 className="mono" style={{ fontSize: 22 }}>
               {codigoLote}
@@ -275,13 +264,13 @@ export const QaRecallPage: React.FC = () => {
 
       {isLoading || !expediente || !lote ? (
         <div className="card">
-          <p className="lead">Ensamblando Expediente 360° desde PostgreSQL, MongoDB y Neo4j...</p>
+          <p className="lead">Cargando Expediente 360° del lote...</p>
         </div>
       ) : (
         <>
           <dl className="summary">
             <div>
-              <dt>Estado Maestro (PG)</dt>
+              <dt>Estado Maestro</dt>
               <dd>
                 <LoteStatusBadge estado={lote.estado} />
               </dd>
@@ -312,7 +301,6 @@ export const QaRecallPage: React.FC = () => {
             <div className="card fwd">
               <div className="card-head">
                 <h2>1 · Hacia adelante (Tiendas)</h2>
-                <span className="op">OP-N4J-01</span>
               </div>
               {destinos.length > 0 ? (
                 <ul className="list">
@@ -374,7 +362,6 @@ export const QaRecallPage: React.FC = () => {
             <div className="card back">
               <div className="card-head">
                 <h2>2 · Hacia atrás (Origen)</h2>
-                <span className="op">OP-INT-02</span>
               </div>
               <ul className="list">
                 <li>
@@ -399,7 +386,7 @@ export const QaRecallPage: React.FC = () => {
                         'Huerta La Escondida'}
                     </div>
                     <div className="s">
-                      1 parcela · <span className="rn">RN-06</span> verificado
+                      1 parcela verificada
                     </div>
                   </div>
                 </li>
@@ -420,7 +407,6 @@ export const QaRecallPage: React.FC = () => {
             <div className="card lat">
               <div className="card-head">
                 <h2>3 · Lateral (Contagio)</h2>
-                <span className="op">OP-N4J-02</span>
               </div>
               {hermanos.length > 0 ? (
                 <ul className="list">
@@ -450,8 +436,7 @@ export const QaRecallPage: React.FC = () => {
               <p className="lock">
                 <Info size={14} />
                 <span>
-                  <span className="rn">RN-08</span> Se incluye en el bloqueo preventivo de esta
-                  misma acción.
+                  Se incluye en el bloqueo preventivo de esta misma acción.
                 </span>
               </p>
             </div>
@@ -462,7 +447,6 @@ export const QaRecallPage: React.FC = () => {
               <div className="card-head">
                 <div className="left">
                   <h2>Cola de dictamen sanitario</h2>
-                  <span className="op">OP-PG-02 · RN-02</span>
                 </div>
                 <span className="badge s-warn">{colaDictamen.length} pendiente(s)</span>
               </div>
@@ -504,11 +488,10 @@ export const QaRecallPage: React.FC = () => {
             <div className="alert alert-info" role="status">
               <RefreshCw size={20} />
               <div>
-                <h2>Sincronización entre motores (Outbox)</h2>
+                <h2>Sincronización del sistema</h2>
                 <p>
-                  Bitácora técnica <span className="mono">eventos_reconciliacion</span>. Si Neo4j o
-                  MongoDB fallan tras el <span className="mono">COMMIT</span>, el bloqueo en
-                  PostgreSQL ya protege el inventario (<span className="rn">RN-01</span>).
+                  Si algún módulo presenta retraso en la actualización tras un bloqueo, puedes
+                  forzar la sincronización pendiente aquí.
                 </p>
                 <div style={{ marginTop: 10 }}>
                   <button
@@ -533,7 +516,7 @@ export const QaRecallPage: React.FC = () => {
       <Modal
         open={openRecallModal}
         title={`Ejecutar Protocolo de Recall · ${recallLoteTarget}`}
-        subtitle="POST /api/v1/incidentes/recall · Bloqueo atómico ACID + Contagio Lateral Neo4j + Expediente MongoDB (RN-04, RN-08)"
+        subtitle="Bloqueo inmediato de inventario, rastreo de contagio lateral y apertura de expediente"
         onClose={() => setOpenRecallModal(false)}
       >
         <form
@@ -558,11 +541,11 @@ export const QaRecallPage: React.FC = () => {
               marginBottom: 14,
             }}
           >
-            <strong>Impacto Multimotor Inmediato:</strong>
+            <strong>Impacto inmediato de la acción:</strong>
             <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: 1.4 }}>
-              <li><strong>PostgreSQL:</strong> Estado cambia a <code>Bloqueado</code> y saldo disponible congelado (RN-01, RN-04).</li>
-              <li><strong>Neo4j:</strong> Proyección de nodos afectados y rastreo de contagio lateral (RN-08).</li>
-              <li><strong>MongoDB:</strong> Apertura de expediente de incidente con bitácora inmutable (RN-09).</li>
+              <li><strong>Inventario:</strong> El lote pasa a <code>Bloqueado</code> y su saldo disponible queda congelado.</li>
+              <li><strong>Trazabilidad:</strong> Se notifican las tiendas destino y se bloquean los lotes hermanos relacionados.</li>
+              <li><strong>Expediente:</strong> Se abre un expediente formal de incidente para seguimiento y cierre.</li>
             </ul>
           </div>
 
@@ -602,10 +585,10 @@ export const QaRecallPage: React.FC = () => {
                   onChange={(e) => setIncluirHermanos(e.target.checked)}
                 />
                 <span>
-                  Bloquear también lotes hermanos (<span className="rn">RN-08</span>)
+                  Bloquear también lotes hermanos
                 </span>
               </label>
-              <small>Rastrea camiones y cuartos fríos compartidos en Neo4j.</small>
+              <small>Rastrea camiones y cuartos fríos compartidos.</small>
             </div>
           </div>
 
@@ -635,18 +618,18 @@ export const QaRecallPage: React.FC = () => {
               disabled={recallMutation.isPending}
             >
               {recallMutation.isPending
-                ? 'Bloqueando en PG, Mongo y Neo4j...'
+                ? 'Ejecutando protocolo de retiro...'
                 : 'Confirmar Recall de Emergencia'}
             </button>
           </div>
         </form>
       </Modal>
 
-      {/* MODAL 2: LIBERAR LOTE (RN-02) */}
+      {/* MODAL 2: LIBERAR LOTE */}
       <Modal
         open={Boolean(liberarTarget)}
         title={`Liberación Sanitaria · ${liberarTarget ?? ''}`}
-        subtitle="PATCH /api/v1/lotes/{codigo}/liberar · Valida análisis vigentes conformes en MongoDB (RN-02, RN-04)"
+        subtitle="Valida que el lote cuente con análisis de laboratorio conformes vigentes"
         onClose={() => setLiberarTarget(null)}
       >
         {liberarTarget && (
@@ -668,11 +651,8 @@ export const QaRecallPage: React.FC = () => {
                 required
               />
               <small>
-                El backend verificará la condición{' '}
-                <span className="mono">
-                  (∃ análisis vigente Conforme) ∧ (¬∃ análisis vigente No Conforme)
-                </span>
-                .
+                Solo se aprobará si el lote cuenta con análisis vigentes conformes y sin dictámenes
+                adversos.
               </small>
             </div>
 
@@ -684,7 +664,7 @@ export const QaRecallPage: React.FC = () => {
                 <strong>No se pudo liberar el lote:</strong>{' '}
                 {liberarMutation.error instanceof ApiError
                   ? liberarMutation.error.message
-                  : 'Verifica que el lote cuente con dictamen favorable vigente (RN-02).'}
+                  : 'Verifica que el lote cuente con dictamen favorable vigente.'}
               </div>
             )}
 
@@ -701,7 +681,7 @@ export const QaRecallPage: React.FC = () => {
                 className="btn btn-primary"
                 disabled={liberarMutation.isPending}
               >
-                {liberarMutation.isPending ? 'Verificando RN-02...' : 'Aprobar liberación'}
+                {liberarMutation.isPending ? 'Verificando dictamen...' : 'Aprobar liberación'}
               </button>
             </div>
           </form>

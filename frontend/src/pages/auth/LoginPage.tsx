@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);
       } else {
-        setErrorMsg('No se pudo conectar con el servidor FastAPI en /api/v1/auth/login.');
+        setErrorMsg('No se pudo conectar con el servidor de TrazaAgro.');
       }
     } finally {
       setLoading(false);
@@ -51,7 +51,7 @@ export const LoginPage: React.FC = () => {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);
       } else {
-        setErrorMsg('Verifica que el backend FastAPI esté corriendo en el puerto 8000.');
+        setErrorMsg('Verifica que el servidor esté disponible e intenta nuevamente.');
       }
     } finally {
       setLoading(false);
@@ -68,17 +68,14 @@ export const LoginPage: React.FC = () => {
             </span>
             <div>
               <p className="eyebrow" style={{ margin: 0 }}>
-                Acceso Operativo RBAC
+                Acceso Operativo
               </p>
               <h1 style={{ fontSize: 21 }}>Iniciar sesión en TrazaAgro</h1>
             </div>
           </div>
 
           <p className="lead" style={{ fontSize: 13.5, marginBottom: 18 }}>
-            Autenticación centralizada con token <strong>JWT HS256</strong> (
-            <span className="op">POST /api/v1/auth/login</span>). El sistema asigna tus permisos y
-            alcance de productor (<span className="rn">RN-04</span>,{' '}
-            <span className="rn">RN-11</span>).
+            Ingresa con tu cuenta operativa para acceder a tus módulos autorizados.
           </p>
 
           {errorMsg && (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, FileUp, GitBranchPlus, Lightbulb, Shield, X } from 'lucide-react';
+import { Check, FileUp, GitBranchPlus, Shield, X } from 'lucide-react';
 import { listarLotesApi } from '../../api/lotes';
 import { consultarAnalisisApi, registrarAnalisisApi } from '../../api/operaciones';
 import { ApiError } from '../../api/client';
@@ -49,9 +49,9 @@ export const LaboratorioPage: React.FC = () => {
     onSuccess: (res) => {
       setFeedback({
         type: 'ok',
-        text: `Certificado ${res.folio_analisis} (V${res.version}) guardado inmutablemente en MongoDB y proyectado en Neo4j. ${
+        text: `Certificado ${res.folio_analisis} (V${res.version}) registrado correctamente. ${
           res.folio_reemplazado
-            ? `Reemplazó a la versión histórica ${res.folio_reemplazado} (RN-05).`
+            ? `Reemplazó a la versión anterior ${res.folio_reemplazado}.`
             : ''
         }`,
       });
@@ -87,7 +87,7 @@ export const LaboratorioPage: React.FC = () => {
     }
     setIsEnmiendaMode(true);
     setFormMotivoEnmienda(
-      'Reanálisis de contramuestra por ajuste en curva de calibración cromatográfica (RN-05).'
+      'Reanálisis de contramuestra por ajuste en curva de calibración cromatográfica.'
     );
     document.getElementById('form-certificado')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -153,17 +153,6 @@ export const LaboratorioPage: React.FC = () => {
 
   return (
     <section aria-label="Panel de Laboratorio Externo">
-      <div className="note">
-        <Lightbulb size={18} />
-        <p>
-          <strong>Laboratorio · RN-05, RN-02:</strong> los parámetros cambian según el tipo de
-          estudio (<span className="mono">DeterminacionSchema</span> polimórfico). No existe botón
-          de editar ni sobrescritura destructiva: toda corrección crea una versión nueva (
-          <span className="mono">V+1</span>) que exige <span className="mono">motivo_enmienda</span>{' '}
-          y enlaza la anterior con <span className="mono">folio_reemplazado</span>.
-        </p>
-      </div>
-
       <div className="page-head">
         <div>
           <p className="eyebrow">Lab AgroBio S.A. de C.V. · EMA-ISA-17025</p>
@@ -199,7 +188,7 @@ export const LaboratorioPage: React.FC = () => {
           style={{ marginBottom: 16 }}
         >
           <div>
-            <h2>Bitácora documental MongoDB</h2>
+            <h2>Registro de certificado</h2>
             <p>{feedback.text}</p>
           </div>
         </div>
@@ -210,7 +199,6 @@ export const LaboratorioPage: React.FC = () => {
           <div className="card-head">
             <div className="left">
               <h2>Determinaciones analíticas</h2>
-              <span className="op">OP-MG-01</span>
             </div>
             {docPrincipal && <DictamenBadge dictamen={docPrincipal.dictamen_general} />}
           </div>
@@ -289,7 +277,6 @@ export const LaboratorioPage: React.FC = () => {
           <div className="card-head">
             <div className="left">
               <h2>Historial de versiones</h2>
-              <span className="op">OP-MG-02 · RN-05</span>
             </div>
           </div>
           <p className="lead mono" style={{ margin: '0 0 12px', fontSize: 13 }}>
@@ -338,10 +325,9 @@ export const LaboratorioPage: React.FC = () => {
           <div className="left">
             <h2>
               {isEnmiendaMode
-                ? 'Emitir enmienda versionada (RN-05)'
+                ? 'Emitir enmienda versionada'
                 : 'Cargar nuevo certificado analítico'}
             </h2>
-            <span className="op">POST /api/v1/analisis</span>
           </div>
           {isEnmiendaMode && (
             <button
@@ -412,7 +398,7 @@ export const LaboratorioPage: React.FC = () => {
 
           <div className="field">
             <label htmlFor="l-motivo">
-              Motivo de enmienda {isEnmiendaMode ? '(Obligatorio en V2+ por RN-05)' : '(Opcional en V1)'}
+              Motivo de enmienda {isEnmiendaMode ? '(Obligatorio en V2+)' : '(Opcional en V1)'}
             </label>
             <input
               id="l-motivo"
@@ -539,7 +525,7 @@ export const LaboratorioPage: React.FC = () => {
             <strong>Error al registrar certificado:</strong>{' '}
             {analisisMutation.error instanceof ApiError
               ? analisisMutation.error.message
-              : 'Error al registrar análisis en MongoDB.'}
+              : 'Error al registrar el análisis.'}
           </div>
         )}
 
@@ -547,7 +533,7 @@ export const LaboratorioPage: React.FC = () => {
           <p className="lock" style={{ margin: 0 }}>
             <Shield size={15} />
             <span>
-              Índice único parcial en MongoDB: solo una versión vigente por lote y tipo de estudio.
+              Solo puede existir una versión vigente por lote y tipo de estudio.
             </span>
           </p>
           <button
@@ -555,7 +541,7 @@ export const LaboratorioPage: React.FC = () => {
             className="btn btn-primary"
             disabled={analisisMutation.isPending}
           >
-            {analisisMutation.isPending ? 'Registrando en MongoDB...' : 'Emitir certificado inmutable'}
+            {analisisMutation.isPending ? 'Registrando certificado...' : 'Emitir certificado'}
           </button>
         </div>
       </form>
