@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, Plus } from 'lucide-react';
+import { Eye, EyeOff, Plus, RefreshCw } from 'lucide-react';
 import { crearLoteApi, listarLotesApi, obtenerExpediente360Api } from '../../api/lotes';
 import { consultarAnalisisApi } from '../../api/operaciones';
 import { ApiError } from '../../api/client';
@@ -43,7 +43,7 @@ export const ProductorPage: React.FC = () => {
   }, [user?.productor_id]);
 
   const [parcelaId, setParcelaId] = useState<number>(misParcelas[0]?.parcela_id ?? 1);
-  const [fechaCosecha, setFechaCosecha] = useState('2026-03-20');
+  const [fechaCosecha, setFechaCosecha] = useState(() => new Date().toISOString().slice(0, 10));
   const [pesoInicialKg, setPesoInicialKg] = useState('1800');
   const [cuadrilla, setCuadrilla] = useState('Cuadrilla Alfa-01');
   const [producto, setProducto] = useState('Aguacate Hass');
@@ -51,7 +51,13 @@ export const ProductorPage: React.FC = () => {
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'bad'; text: string } | null>(null);
   const [selectedLoteModal, setSelectedLoteModal] = useState<string | null>(null);
 
-  const { data: lotes = [], isLoading } = useQuery({
+  const {
+    data: lotes = [],
+    isLoading,
+    isError: isLotesError,
+    error: lotesError,
+    refetch: refetchLotes,
+  } = useQuery({
     queryKey: ['lotes', user?.username],
     queryFn: () => listarLotesApi(),
   });
@@ -115,6 +121,28 @@ export const ProductorPage: React.FC = () => {
 
   return (
     <section aria-label="Panel del Productor">
+      {isLotesError && (
+        <div className="alert alert-bad" role="alert" style={{ marginBottom: 18 }}>
+          <div>
+            <h2>No se pudieron cargar tus lotes</h2>
+            <p>
+              {lotesError instanceof ApiError
+                ? lotesError.message
+                : 'Verifica la conexión con la API e intenta nuevamente.'}
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => refetchLotes()}
+            >
+              <RefreshCw size={14} /> Reintentar
+            </button>
+          </div>
+        </div>
+      )}
+
       {feedback && (
         <div
           className={`alert ${feedback.type === 'ok' ? 'alert-ok' : 'alert-bad'}`}
@@ -128,35 +156,33 @@ export const ProductorPage: React.FC = () => {
         </div>
       )}
 
-      <div className="device-wrap">
-        <div className="device" aria-label="Vista móvil del productor">
+      <div className="page-head">
+        <div>
           <p className="eyebrow">
             {parcelaActiva.nombre_huerta.split('·')[0]} · {parcelaActiva.prefijo_lote}
           </p>
-          <h1>{user?.nombre ?? 'Aguacateros Unidos de Michoacán'}</h1>
+          <h1>{user?.nombre ?? 'Productor certificado'}</h1>
           <p className="lead mono" style={{ fontSize: 13 }}>
             {parcelaActiva.codigo_senasica}
           </p>
+        </div>
+        <a href="#form-cosecha" className="btn btn-primary">
+          <Plus size={17} aria-hidden="true" /> Registrar cosecha
+        </a>
+      </div>
 
-          <a
-            href="#form-cosecha"
-            className="btn btn-primary btn-lg"
-            style={{ margin: '16px 0' }}
-          >
-            <Plus size={18} /> Registrar cosecha
-          </a>
-
-          <div
-            className="grid kpis"
-            style={{ gridTemplateColumns: '1fr 1fr', margin: '16px 0' }}
-          >
+      <div className="grid two">
+        <div className="stack">
+          <div className="grid half">
             <div className="card kpi">
               <div className="label">Mis lotes</div>
               <div className="value">{lotes.length}</div>
+              <div className="meta">registrados en tus parcelas</div>
             </div>
             <div className="card kpi">
               <div className="label">Kg cosechados</div>
               <div className="value">{totalKg.toLocaleString()}</div>
+              <div className="meta">peso inicial acumulado</div>
             </div>
           </div>
 
@@ -166,6 +192,11 @@ export const ProductorPage: React.FC = () => {
             </div>
             {isLoading ? (
               <p className="lead">Cargando lotes del productor...</p>
+            ) : lotes.length === 0 ? (
+              <p className="lead" style={{ fontSize: 13 }}>
+                Aún no tienes lotes registrados. Utiliza el formulario para capturar tu primera
+                cosecha.
+              </p>
             ) : (
               <ul className="list">
                 {lotes.map((l) => (
@@ -185,10 +216,10 @@ export const ProductorPage: React.FC = () => {
                       <button
                         type="button"
                         className="btn btn-ghost btn-sm"
-                        title="Ver detalle del lote"
+                        aria-label={`Ver detalle del lote ${l.codigo_lote}`}
                         onClick={() => setSelectedLoteModal(l.codigo_lote)}
                       >
-                        <Eye size={15} />
+                        <Eye size={15} aria-hidden="true" /> Detalle
                       </button>
                     </div>
                   </li>
@@ -400,7 +431,14 @@ export const ProductorPage: React.FC = () => {
           <div className="stack">
             <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
               <LoteStatusBadge estado={detalleModal.lote.estado} />
-              <SyncBadge sincronizacion={{ postgresql: 'ok', mongodb: 'ok', neo4j: 'ok' }} />
+              <SyncBadge
+                sincronizacion={
+                  detalleModal.lote.sincronizacion ??
+                  (detalleModal.advertencias.length > 0
+                    ? { advertencias: 'pendiente' }
+                    : null)
+                }
+              />
             </div>
 
             <div className="grid half">

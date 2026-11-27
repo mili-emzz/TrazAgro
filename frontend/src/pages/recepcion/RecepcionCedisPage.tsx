@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   Clock,
   Lock,
+  RefreshCw,
   Scale,
   Thermometer,
   Truck,
@@ -26,7 +27,12 @@ const TIENDAS_ACTIVAS = [
 export const RecepcionCedisPage: React.FC = () => {
   const queryClient = useQueryClient();
 
-  const { data: lotes = [] } = useQuery({
+  const {
+    data: lotes = [],
+    isError: isLotesError,
+    error: lotesError,
+    refetch: refetchLotes,
+  } = useQuery({
     queryKey: ['lotes'],
     queryFn: () => listarLotesApi(),
   });
@@ -164,11 +170,7 @@ export const RecepcionCedisPage: React.FC = () => {
 
   const acta = expedienteTermico?.acta_recepcion;
   const recSql = expedienteTermico?.recepcion_sql;
-  const lecturas = acta?.monitoreo_temperatura_caja ?? [
-    { zona_contenedor: 'Fondo', tarima: 'T-01', temperatura_c: 10.8 },
-    { zona_contenedor: 'Centro', tarima: 'T-04', temperatura_c: 11.4 },
-    { zona_contenedor: 'Puerta', tarima: 'T-07', temperatura_c: 12.1 },
-  ];
+  const lecturas = acta?.monitoreo_temperatura_caja ?? [];
 
   const isTempOut = Number(recTemp) < 4.0 || Number(recTemp) > 8.0;
 
@@ -190,6 +192,28 @@ export const RecepcionCedisPage: React.FC = () => {
         </div>
       </div>
 
+      {isLotesError && (
+        <div className="alert alert-bad" role="alert" style={{ marginBottom: 16 }}>
+          <div>
+            <h2>No se pudo cargar el inventario de CEDIS</h2>
+            <p>
+              {lotesError instanceof ApiError
+                ? lotesError.message
+                : 'Verifica la conexión con la API e intenta nuevamente.'}
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => refetchLotes()}
+            >
+              <RefreshCw size={14} /> Reintentar
+            </button>
+          </div>
+        </div>
+      )}
+
       {feedback && (
         <div
           className={`alert ${
@@ -209,27 +233,33 @@ export const RecepcionCedisPage: React.FC = () => {
         </div>
       )}
 
-      <div className="alert alert-warn" role="alert" style={{ marginBottom: 16 }}>
-        <Thermometer size={20} />
-        <div>
-          <h2>Lote retenido: ruptura de cadena de frío</h2>
-          <p>
-            <span className="mono">AGU-P015-260315-01</span> ·{' '}
-            <span className="mono">REC-2026-0107</span> · promedio <strong>11.4 °C</strong> (rango
-            normativo 4.0–8.0 °C). En cuarentena en <span className="mono">CF-03</span> esperando
-            dictamen de QA.
-          </p>
+      {lotesRevision.length > 0 && (
+        <div className="alert alert-warn" role="alert" style={{ marginBottom: 16 }}>
+          <Thermometer size={20} />
+          <div>
+            <h2>
+              {lotesRevision.length} lote(s) retenido(s) en revisión sanitaria o cadena de frío
+            </h2>
+            <p>
+              Lotes en cuarentena:{' '}
+              <span className="mono">
+                {lotesRevision.map((l) => l.codigo_lote).join(', ')}
+              </span>{' '}
+              ({kgRevision.toLocaleString()} kg) · En espera de dictamen de QA (rango normativo
+              4.0–8.0 °C).
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => setLoteTermicoCodigo(lotesRevision[0].codigo_lote)}
+            >
+              Inspeccionar acta
+            </button>
+          </div>
         </div>
-        <div className="actions">
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => setLoteTermicoCodigo('AGU-P015-260315-01')}
-          >
-            Inspeccionar acta
-          </button>
-        </div>
-      </div>
+      )}
 
       <div className="grid kpis" style={{ marginBottom: 16 }}>
         <div className="card kpi">
@@ -370,28 +400,35 @@ export const RecepcionCedisPage: React.FC = () => {
                 {recSql.folio_recepcion} · {recSql.placas_vehiculo} · {recSql.codigo_cuarto_frio}
               </p>
 
-              {lecturas.map((lec, i) => {
-                const out = lec.temperatura_c < 4 || lec.temperatura_c > 8;
-                const pct = Math.min(100, Math.max(15, (lec.temperatura_c / 15) * 100));
-                return (
-                  <div className="bar-row" key={`${lec.tarima ?? i}`}>
-                    <span className="mono">{lec.tarima ?? `M-${i + 1}`}</span>
-                    <div
-                      className="bar"
-                      role="img"
-                      aria-label={`${lec.temperatura_c} grados`}
-                    >
-                      <span
-                        style={{
-                          width: `${pct}%`,
-                          background: out ? 'var(--danger)' : 'var(--primary)',
-                        }}
-                      />
+              {lecturas.length > 0 ? (
+                lecturas.map((lec, i) => {
+                  const out = lec.temperatura_c < 4 || lec.temperatura_c > 8;
+                  const pct = Math.min(100, Math.max(15, (lec.temperatura_c / 15) * 100));
+                  return (
+                    <div className="bar-row" key={`${lec.tarima ?? i}`}>
+                      <span className="mono">{lec.tarima ?? `M-${i + 1}`}</span>
+                      <div
+                        className="bar"
+                        role="img"
+                        aria-label={`${lec.temperatura_c} grados`}
+                      >
+                        <span
+                          style={{
+                            width: `${pct}%`,
+                            background: out ? 'var(--danger)' : 'var(--primary)',
+                          }}
+                        />
+                      </div>
+                      <span className="mono">{lec.temperatura_c} °C</span>
                     </div>
-                    <span className="mono">{lec.temperatura_c} °C</span>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <p className="lead" style={{ fontSize: 13 }}>
+                  Sin lecturas por tarima registradas en el acta documental. Temperatura de llegada:{' '}
+                  <strong className="mono">{recSql.temperatura_llegada_c} °C</strong>.
+                </p>
+              )}
 
               <p className="lead" style={{ fontSize: 12 }}>
                 Rango permitido 4.0–8.0 °C.
@@ -405,7 +442,9 @@ export const RecepcionCedisPage: React.FC = () => {
                     <div className="s">Presión de penetrómetro</div>
                   </div>
                   <span className="mono">
-                    {acta?.evaluacion_sensorial?.firmeza_pulpa_lb ?? 17.8} lb
+                    {acta?.evaluacion_sensorial?.firmeza_pulpa_lb != null
+                      ? `${acta.evaluacion_sensorial.firmeza_pulpa_lb} lb`
+                      : 'Sin registro'}
                   </span>
                 </li>
                 <li>
@@ -414,7 +453,9 @@ export const RecepcionCedisPage: React.FC = () => {
                     <div className="s">Madurez fisiológica</div>
                   </div>
                   <span className="mono">
-                    {acta?.evaluacion_sensorial?.materia_seca_estimada_pct ?? 24.4}%
+                    {acta?.evaluacion_sensorial?.materia_seca_estimada_pct != null
+                      ? `${acta.evaluacion_sensorial.materia_seca_estimada_pct}%`
+                      : 'Sin registro'}
                   </span>
                 </li>
                 <li>
@@ -423,7 +464,7 @@ export const RecepcionCedisPage: React.FC = () => {
                     <div className="s">Dictamen físico</div>
                   </div>
                   <span className="badge s-info">
-                    {acta?.evaluacion_sensorial?.color_epidermis ?? 'Verde mate'}
+                    {acta?.evaluacion_sensorial?.color_epidermis ?? 'Sin registro'}
                   </span>
                 </li>
               </ul>
@@ -538,21 +579,21 @@ export const RecepcionCedisPage: React.FC = () => {
               <div
                 style={{
                   padding: '8px 12px',
-                  borderRadius: 6,
+                  borderRadius: 8,
                   fontSize: 12.5,
                   fontWeight: 600,
                   marginTop: 6,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: isTempOut ? '#FDF0ED' : '#EDF7EE',
+                  background: isTempOut ? 'var(--danger-tint)' : 'var(--primary-tint)',
                   color: isTempOut ? 'var(--danger)' : 'var(--primary)',
-                  border: `1px solid ${isTempOut ? '#F5C2B7' : '#BCE3C2'}`,
+                  border: `1px solid ${isTempOut ? '#F2B8B8' : '#B6DEC3'}`,
                 }}
               >
                 {isTempOut
-                  ? '⚠ ALERTA: Temperatura fuera de 4.0–8.0 °C. El lote quedará en CUARENTENA (En revisión / Retenido).'
-                  : '✓ Temperatura dentro de rango (4.0–8.0 °C). Dictamen Conforme.'}
+                  ? 'Alerta: temperatura fuera de 4.0–8.0 °C. El lote quedará en cuarentena (En revisión).'
+                  : 'Temperatura dentro de rango (4.0–8.0 °C). Dictamen conforme.'}
               </div>
             </div>
 

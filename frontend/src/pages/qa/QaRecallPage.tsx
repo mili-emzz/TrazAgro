@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertTriangle,
+  CheckCircle2,
   Download,
   Info,
   Lock,
   OctagonAlert,
   RefreshCw,
   Search,
-  Send,
 } from 'lucide-react';
 import { liberarLoteApi, listarLotesApi, obtenerExpediente360Api } from '../../api/lotes';
 import {
@@ -31,28 +31,36 @@ export const QaRecallPage: React.FC = () => {
   const [feedback, setFeedback] = useState<{ type: 'ok' | 'warn' | 'bad'; text: string } | null>(
     null
   );
+  const [lastSync, setLastSync] = useState<Record<string, string> | null>(null);
 
   // Modal de confirmación de Recall (RN-04, RN-08)
   const [openRecallModal, setOpenRecallModal] = useState(false);
   const [recallLoteTarget, setRecallLoteTarget] = useState('AGU-P014-260312-01');
-  const [recallMotivo, setRecallMotivo] = useState(
-    'Alerta sanitaria por exceso de Clorpirifos (0.080 mg/kg > LMR 0.010 mg/kg) en certificado LAB-2026-AGU-0842-V1.'
-  );
+  const [recallMotivo, setRecallMotivo] = useState('');
   const [incluirHermanos, setIncluirHermanos] = useState(true);
   const [ventanaDias, setVentanaDias] = useState(1);
 
   // Modal de liberación de lote (RN-02, RN-04)
   const [liberarTarget, setLiberarTarget] = useState<string | null>(null);
-  const [liberarMotivo, setLiberarMotivo] = useState(
-    'Liberación sanitaria aprobada tras verificación de análisis conformes vigentes e inspección de vida de anaquel.'
-  );
+  const [liberarMotivo, setLiberarMotivo] = useState('');
 
-  const { data: lotes = [] } = useQuery({
+  const {
+    data: lotes = [],
+    isError: isLotesError,
+    error: lotesError,
+    refetch: refetchLotes,
+  } = useQuery({
     queryKey: ['lotes'],
     queryFn: () => listarLotesApi(),
   });
 
-  const { data: expediente, isLoading } = useQuery({
+  const {
+    data: expediente,
+    isLoading,
+    isError: isExpedienteError,
+    error: expedienteError,
+    refetch: refetchExpediente,
+  } = useQuery({
     queryKey: ['expediente-qa', codigoLote],
     queryFn: () => obtenerExpediente360Api(codigoLote),
     enabled: Boolean(codigoLote),
@@ -74,6 +82,8 @@ export const QaRecallPage: React.FC = () => {
     mutationFn: (payload: RecallCreateRequest) => ejecutarRecallApi(payload),
     onSuccess: (res) => {
       setOpenRecallModal(false);
+      setRecallMotivo('');
+      setLastSync(res.sincronizacion ?? null);
       setCodigoLote(recallLoteTarget);
       setSearchInput(recallLoteTarget);
       const numHermanos = res.lotes_hermanos_bloqueados.length;
@@ -100,6 +110,8 @@ export const QaRecallPage: React.FC = () => {
       liberarLoteApi(codigo, { motivo }),
     onSuccess: (res) => {
       setLiberarTarget(null);
+      setLiberarMotivo('');
+      setLastSync(res.sincronizacion ?? null);
       setFeedback({
         type: 'ok',
         text: `Lote ${res.codigo_lote} cambiado de '${res.estado_previo}' a '${res.estado_actual}' (${res.folio_evento}) tras validar certificados conformes.`,
@@ -165,7 +177,7 @@ export const QaRecallPage: React.FC = () => {
 
   const lote = expediente?.lote;
   const rec = expediente?.recepcion_sql;
-  const despachadoKg = lote ? Number(lote.peso_inicial_kg) - Number(lote.saldo_kg) : 850;
+  const despachadoKg = lote ? Math.max(0, Number(lote.peso_inicial_kg) - Number(lote.saldo_kg)) : 0;
   const destinos =
     trazaAdelante?.tiendas_afectadas ?? expediente?.red_trazabilidad?.destinos ?? [];
   const hermanos =
@@ -173,6 +185,21 @@ export const QaRecallPage: React.FC = () => {
   const colaDictamen = lotes.filter(
     (l) => l.estado === 'En revision' || l.estado === 'Recibido' || l.estado === 'Cosechado'
   );
+
+  const analisisNoConforme = expediente?.analisis_laboratorio.find(
+    (an) => an.es_vigente && an.dictamen_general.toLowerCase().includes('no conforme')
+  );
+  const incidenteActivo = expediente?.expedientes_incidentes.find(
+    (inc) => inc.estado_expediente !== 'Cerrado'
+  );
+  const isBloqueado = lote?.estado === 'Bloqueado' || lote?.estado === 'Retirado';
+  const isEnRevision = lote?.estado === 'En revision';
+  const syncData =
+    lote?.sincronizacion ??
+    lastSync ??
+    (expediente?.advertencias && expediente.advertencias.length > 0
+      ? { sincronizacion: 'pendiente' }
+      : null);
 
   return (
     <section aria-label="Consola de Recall y Expediente 360 de QA">
@@ -195,31 +222,131 @@ export const QaRecallPage: React.FC = () => {
         </div>
       )}
 
-      <div className="alert alert-bad" role="alert" style={{ marginBottom: 20 }}>
-        <OctagonAlert size={22} />
-        <div>
-          <h2>
-            Clorpirifos fuera de LMR · <span className="mono">{codigoLote}</span>
-          </h2>
-          <p>
-            0.080 mg/kg (límite 0.010). {despachadoKg.toLocaleString()} kg despachados a{' '}
-            {destinos.length} tienda(s) · {hermanos.length} lote(s) hermano(s) detectado(s) en
-            recursos compartidos.
-          </p>
+      {(isLotesError || isExpedienteError) && (
+        <div className="alert alert-bad" role="alert" style={{ marginBottom: 16 }}>
+          <OctagonAlert size={20} />
+          <div>
+            <h2>No se pudo cargar la información del expediente</h2>
+            <p>
+              {(expedienteError instanceof ApiError && expedienteError.message) ||
+                (lotesError instanceof ApiError && lotesError.message) ||
+                'Verifica la conexión con la API e intenta nuevamente.'}
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                refetchLotes();
+                refetchExpediente();
+              }}
+            >
+              <RefreshCw size={14} /> Reintentar
+            </button>
+          </div>
         </div>
-        <div className="actions">
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={() => {
-              setRecallLoteTarget(codigoLote);
-              setOpenRecallModal(true);
-            }}
-          >
-            <Lock size={16} /> Ejecutar recall y bloquear lotes
-          </button>
+      )}
+
+      {lote && (isBloqueado || Boolean(analisisNoConforme)) && (
+        <div className="alert alert-bad" role="alert" style={{ marginBottom: 20 }}>
+          <OctagonAlert size={22} />
+          <div>
+            <h2>
+              {isBloqueado ? 'Lote bloqueado bajo alerta sanitaria' : 'Dictamen adverso detectado'} ·{' '}
+              <span className="mono">{codigoLote}</span>
+            </h2>
+            <p>
+              {incidenteActivo?.motivo_apertura ??
+                (analisisNoConforme
+                  ? `Análisis ${analisisNoConforme.folio_analisis} (${analisisNoConforme.tipo_estudio}): ${analisisNoConforme.dictamen_general}.`
+                  : 'Lote inmovilizado por protocolo de inocuidad.')}{' '}
+              {despachadoKg.toLocaleString()} kg despachados a {destinos.length} tienda(s) ·{' '}
+              {hermanos.length} lote(s) hermano(s) en recursos compartidos.
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={() => {
+                setRecallLoteTarget(codigoLote);
+                setRecallMotivo('');
+                setOpenRecallModal(true);
+              }}
+            >
+              <Lock size={16} /> Ejecutar recall y bloquear lotes
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {lote && !isBloqueado && !analisisNoConforme && isEnRevision && (
+        <div className="alert alert-warn" role="status" style={{ marginBottom: 20 }}>
+          <AlertTriangle size={22} />
+          <div>
+            <h2>
+              Lote en revisión sanitaria · <span className="mono">{codigoLote}</span>
+            </h2>
+            <p>
+              Saldo retenido de {Number(lote.saldo_kg).toLocaleString()} kg en espera de dictamen
+              técnico de QA.
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                setLiberarMotivo('');
+                setLiberarTarget(codigoLote);
+              }}
+            >
+              Liberar lote
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger btn-sm"
+              onClick={() => {
+                setRecallLoteTarget(codigoLote);
+                setRecallMotivo('');
+                setOpenRecallModal(true);
+              }}
+            >
+              <Lock size={14} /> Iniciar recall
+            </button>
+          </div>
+        </div>
+      )}
+
+      {lote && !isBloqueado && !analisisNoConforme && !isEnRevision && (
+        <div className="alert alert-ok" role="status" style={{ marginBottom: 20 }}>
+          <CheckCircle2 size={20} />
+          <div>
+            <h2>
+              Sin alertas sanitarias activas · <span className="mono">{codigoLote}</span>
+            </h2>
+            <p>
+              Estado actual: <strong>{lote.estado}</strong> · {despachadoKg.toLocaleString()} kg
+              despachados a {destinos.length} tienda(s).
+            </p>
+          </div>
+          <div className="actions">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              style={{ color: 'var(--danger)' }}
+              onClick={() => {
+                setRecallLoteTarget(codigoLote);
+                setRecallMotivo('');
+                setOpenRecallModal(true);
+              }}
+            >
+              <Lock size={14} /> Iniciar recall preventivo
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="page-head">
         <div>
@@ -228,7 +355,7 @@ export const QaRecallPage: React.FC = () => {
             <h1 className="mono" style={{ fontSize: 22 }}>
               {codigoLote}
             </h1>
-            <SyncBadge sincronizacion={{ postgresql: 'ok', mongodb: 'ok', neo4j: 'ok' }} />
+            <SyncBadge sincronizacion={syncData} />
           </div>
         </div>
 
@@ -337,24 +464,11 @@ export const QaRecallPage: React.FC = () => {
               >
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
-                  disabled={destinos.length === 0}
-                  onClick={() =>
-                    setFeedback({
-                      type: 'ok',
-                      text: `Alerta sanitaria enviada a ${destinos.length} sucursal(es) para retiro inmediato de anaquel.`,
-                    })
-                  }
-                >
-                  <Send size={14} /> Notificar tiendas
-                </button>
-                <button
-                  type="button"
                   className="btn btn-secondary btn-sm"
                   disabled={destinos.length === 0}
                   onClick={handleExportTiendasCsv}
                 >
-                  <Download size={14} /> Exportar CSV
+                  <Download size={14} /> Exportar lista de tiendas (CSV)
                 </button>
               </div>
             </div>
@@ -369,12 +483,12 @@ export const QaRecallPage: React.FC = () => {
                     <div className="t">
                       {trazaAtrasLat?.origen?.productor_nombre ??
                         lote.productor_nombre ??
-                        'Aguacateros Unidos de Michoacán'}
+                        'Sin productor registrado'}
                     </div>
                     <div className="s mono">
                       {trazaAtrasLat?.origen?.codigo_senasica ??
                         lote.codigo_senasica ??
-                        'SENASICA-MICH-URU-014'}
+                        'Sin código SENASICA'}
                     </div>
                   </div>
                 </li>
@@ -383,10 +497,10 @@ export const QaRecallPage: React.FC = () => {
                     <div className="t">
                       {trazaAtrasLat?.origen?.nombre_huerta ??
                         lote.nombre_huerta ??
-                        'Huerta La Escondida'}
+                        'Sin huerta registrada'}
                     </div>
                     <div className="s">
-                      1 parcela verificada
+                      {trazaAtrasLat?.origen?.municipio ?? lote.municipio ?? 'Parcela de origen'}
                     </div>
                   </div>
                 </li>
@@ -531,22 +645,21 @@ export const QaRecallPage: React.FC = () => {
           }}
         >
           <div
+            className="alert alert-bad"
             style={{
               padding: '10px 14px',
-              borderRadius: 6,
               fontSize: 12.5,
-              background: '#FDF0ED',
-              border: '1px solid #F5C2B7',
-              color: 'var(--danger)',
               marginBottom: 14,
             }}
           >
-            <strong>Impacto inmediato de la acción:</strong>
-            <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: 1.4 }}>
-              <li><strong>Inventario:</strong> El lote pasa a <code>Bloqueado</code> y su saldo disponible queda congelado.</li>
-              <li><strong>Trazabilidad:</strong> Se notifican las tiendas destino y se bloquean los lotes hermanos relacionados.</li>
-              <li><strong>Expediente:</strong> Se abre un expediente formal de incidente para seguimiento y cierre.</li>
-            </ul>
+            <div>
+              <strong>Impacto inmediato de la acción:</strong>
+              <ul style={{ margin: '4px 0 0 16px', padding: 0, lineHeight: 1.4 }}>
+                <li><strong>Inventario:</strong> El lote pasa a <code>Bloqueado</code> y su saldo disponible queda congelado.</li>
+                <li><strong>Trazabilidad:</strong> Se identifican las tiendas destino y se bloquean los lotes hermanos relacionados.</li>
+                <li><strong>Expediente:</strong> Se abre un expediente formal de incidente para seguimiento y cierre.</li>
+              </ul>
+            </div>
           </div>
 
           <div className="field">
@@ -556,6 +669,7 @@ export const QaRecallPage: React.FC = () => {
               className="input"
               rows={3}
               minLength={10}
+              placeholder="Ej. Alerta sanitaria por exceso de Clorpirifos (> LMR 0.010 mg/kg) en certificado vigente."
               value={recallMotivo}
               onChange={(e) => setRecallMotivo(e.target.value)}
               required
@@ -646,6 +760,7 @@ export const QaRecallPage: React.FC = () => {
                 className="input"
                 rows={3}
                 minLength={5}
+                placeholder="Ej. Liberación sanitaria aprobada tras verificación de análisis conformes vigentes e inspección de vida de anaquel."
                 value={liberarMotivo}
                 onChange={(e) => setLiberarMotivo(e.target.value)}
                 required
