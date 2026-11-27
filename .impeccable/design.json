@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T22:11:00-06:00",
+  "title": "Design System: TrazaAgro",
+  "extensions": {
+    "colorMeta": {
+      "verde-bosque-aguacate": {
+        "role": "primary",
+        "displayName": "Verde Bosque Aguacate",
+        "canonical": "#2D6A4F",
+        "tonalRamp": ["#0D2319", "#173A2B", "#245741", "#2D6A4F", "#438768", "#6EA88D", "#A8D0BD", "#E3F1E7"]
+      },
+      "azul-tecnico-cedis": {
+        "role": "secondary",
+        "displayName": "Azul Técnico CEDIS",
+        "canonical": "#1D6996",
+        "tonalRamp": ["#0A2436", "#113D59", "#175378", "#1D6996", "#3785B3", "#64A5CC", "#A2CBE3", "#E2EEF6"]
+      },
+      "verde-brote": {
+        "role": "tertiary",
+        "displayName": "Verde Brote",
+        "canonical": "#90BE6D",
+        "tonalRamp": ["#203314", "#2F5216", "#4A752A", "#6D9A4B", "#90BE6D", "#AED093", "#CCE2BA", "#EAF4E0"]
+      },
+      "carmesi-recall": {
+        "role": "danger",
+        "displayName": "Carmesí Recall",
+        "canonical": "#A4161A",
+        "tonalRamp": ["#3B0708", "#5E0B0D", "#871115", "#A4161A", "#C43539", "#DC6669", "#F2B8B8", "#FCE8E8"]
+      },
+      "ambar-alerta": {
+        "role": "warning",
+        "displayName": "Ámbar Alerta",
+        "canonical": "#7A4F00",
+        "tonalRamp": ["#2E1D00", "#4D3200", "#7A4F00", "#A66E08", "#CC8F1F", "#E3B252", "#F0D58A", "#FFF3D1"]
+      },
+      "papel-botanico": {
+        "role": "neutral",
+        "displayName": "Papel Botánico",
+        "canonical": "#F1FAEE",
+        "tonalRamp": ["#1B2A22", "#46564D", "#728278", "#9AA79F", "#B9C9B6", "#D3E2D0", "#EAF1E8", "#F1FAEE"]
+      },
+      "superficie-blanca": {
+        "role": "neutral",
+        "displayName": "Superficie Blanca",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#1B2A22", "#3E4A43", "#5B6660", "#8FA597", "#B8C7BE", "#DCE5DF", "#F4F7F5", "#FFFFFF"]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Títulos principales de vistas operativas (h1)." },
+      "title": { "displayName": "Title", "purpose": "Encabezados de tarjetas, alertas y secciones (h2)." },
+      "body": { "displayName": "Body", "purpose": "Lectura general de formularios, listas y tablas." },
+      "label": { "displayName": "Label", "purpose": "Sobretítulos (.eyebrow) y encabezados de tabla." },
+      "mono": { "displayName": "Mono", "purpose": "Códigos de lote, endpoints (.op) y reglas (.rn)." }
+    },
+    "shadows": [
+      { "name": "tab-active", "value": "0 1px 2px rgba(0, 0, 0, 0.08)", "purpose": "Elevación sutil de la pestaña activa." },
+      { "name": "node-hover", "value": "0 2px 6px rgba(0, 0, 0, 0.08)", "purpose": "Respuesta discreta al pasar el cursor sobre nodos del grafo." },
+      { "name": "device-frame", "value": "0 8px 24px rgba(27, 42, 34, 0.08)", "purpose": "Marco de vista previa encapsulada." },
+      { "name": "modal-card", "value": "0 20px 40px rgba(0, 0, 0, 0.18)", "purpose": "Separación del modal transaccional sobre el backdrop." },
+      { "name": "focus-ring", "value": "0 0 0 3px #1D6996", "purpose": "Contorno de enfoque accesible WCAG AA." }
+    ],
+    "motion": [
+      { "name": "btn-transition", "value": "background-color 0.15s, border-color 0.15s", "purpose": "Transición sobria en botones y tarjetas demo." },
+      { "name": "node-hover-motion", "value": "transform 0.12s, box-shadow 0.12s", "purpose": "Micro-elevación de 1px en nodos interactivos." }
+    ],
+    "breakpoints": [
+      { "name": "tablet", "value": "760px" },
+      { "name": "login-split", "value": "820px" },
+      { "name": "desktop-trace", "value": "900px" },
+      { "name": "max-container", "value": "1220px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal operativa (registrar cosecha, liberar lote, confirmar envío).",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Liberar lote</button>",
+      "css": ".ds-btn-primary { font-family: Geist, system-ui, sans-serif; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 15px; min-height: 40px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; border: 1px solid transparent; background: var(--primary, #2D6A4F); color: #FFFFFF; transition: background-color 0.15s; } .ds-btn-primary:hover { background: var(--primary-hover, #245741); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px #1D6996; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción complementaria o consulta de expediente 360°.",
+      "html": "<button class=\"ds-btn-secondary\" type=\"button\">Ver expediente 360°</button>",
+      "css": ".ds-btn-secondary { font-family: Geist, system-ui, sans-serif; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 15px; min-height: 40px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; background: var(--surface, #FFFFFF); color: var(--secondary, #1D6996); border: 1px solid var(--secondary, #1D6996); transition: background-color 0.15s; } .ds-btn-secondary:hover { background: var(--secondary-tint, #E2EEF6); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px #1D6996; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Acción crítica de bloqueo atómico de emergencia o protocolo de recall.",
+      "html": "<button class=\"ds-btn-danger\" type=\"button\">Bloquear lote (Recall)</button>",
+      "css": ".ds-btn-danger { font-family: Geist, system-ui, sans-serif; font-weight: 600; font-size: 14px; border-radius: 10px; padding: 9px 15px; min-height: 40px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; border: 1px solid transparent; background: var(--danger, #A4161A); color: #FFFFFF; transition: background-color 0.15s; } .ds-btn-danger:hover { background: #871115; } .ds-btn-danger:focus-visible { outline: none; box-shadow: 0 0 0 3px #1D6996; }"
+    },
+    {
+      "name": "Status Badges",
+      "kind": "chip",
+      "refersTo": "badge-ok",
+      "description": "Insignias semánticas de estado maestro del lote.",
+      "html": "<div style=\"display:flex;gap:8px;flex-wrap:wrap;\"><span class=\"ds-badge ds-badge-ok\">Liberado</span><span class=\"ds-badge ds-badge-info\">En laboratorio</span><span class=\"ds-badge ds-badge-warn\">Alerta temp.</span><span class=\"ds-badge ds-badge-bad\">Bloqueado</span></div>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 4px; font-family: Geist, system-ui, sans-serif; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; } .ds-badge-ok { background: var(--primary-tint, #E3F1E7); color: var(--primary, #2D6A4F); } .ds-badge-info { background: var(--secondary-tint, #E2EEF6); color: var(--secondary, #1D6996); } .ds-badge-warn { background: var(--warn-tint, #FFF3D1); color: var(--warn, #7A4F00); } .ds-badge-bad { background: var(--danger-tint, #FCE8E8); color: var(--danger, #A4161A); }"
+    },
+    {
+      "name": "Operational Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de captura con etiqueta clara y borde salvia definido.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-lote\">Código de lote</label><input id=\"ds-lote\" class=\"ds-input\" type=\"text\" value=\"LOT-2026-MICH-001\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font-family: Geist, system-ui, sans-serif; } .ds-field label { font-size: 13px; font-weight: 600; color: var(--ink, #1B2A22); } .ds-input { font-family: inherit; font-size: 15px; padding: 9px 12px; border: 1px solid #8FA597; border-radius: 10px; min-height: 40px; background: #FFFFFF; color: var(--ink, #1B2A22); width: 100%; } .ds-input:focus-visible { outline: none; box-shadow: 0 0 0 3px #1D6996; }"
+    },
+    {
+      "name": "Surface Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Tarjeta plana blanca con borde salvia de 1px para KPIs, tablas y formularios.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-head\"><span class=\"ds-card-title\">Lote LOT-2026-001</span><span class=\"ds-rn\">RN-04</span></div><p class=\"ds-card-meta\">Control transaccional PostgreSQL · 1,240 kg disponibles</p></div>",
+      "css": ".ds-card { background: var(--surface, #FFFFFF); border: 1px solid var(--border, #D3E2D0); border-radius: 12px; padding: 16px; font-family: Geist, system-ui, sans-serif; color: var(--ink, #1B2A22); } .ds-card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; } .ds-card-title { font-size: 16px; font-weight: 600; } .ds-card-meta { margin: 0; font-size: 13px; color: var(--muted, #46564D); } .ds-rn { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; font-weight: 600; color: var(--secondary, #1D6996); }"
+    },
+    {
+      "name": "Role Navigation Tabs",
+      "kind": "nav",
+      "refersTo": "card",
+      "description": "Riel de pestañas sobre fondo papel botánico con pestaña activa elevada.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab ds-tab-active\" href=\"#\">Consola Recall</a><a class=\"ds-tab\" href=\"#\">Auditoría 360°</a><a class=\"ds-tab\" href=\"#\">Red Neo4j</a></nav>",
+      "css": ".ds-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--bg, #F1FAEE); border-radius: 10px; border: 1px solid var(--border, #D3E2D0); font-family: Geist, system-ui, sans-serif; } .ds-tab { border: 0; background: transparent; color: var(--muted, #46564D); font-size: 13.5px; font-weight: 500; padding: 7px 12px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; min-height: 38px; } .ds-tab:hover { color: var(--ink, #1B2A22); } .ds-tab-active { background: var(--surface, #FFFFFF); color: var(--primary, #2D6A4F); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Consola de Inocuidad Viva",
+    "overview": "TrazaAgro combina la precisión clínica de un instrumento de laboratorio con la cercanía orgánica del campo agrícola mexicano. El sistema opera sobre capas tonales suaves entre un lienzo papel botánico y tarjetas blancas puras delimitadas por bordes salvia nítidos, evitando por completo gradientes decorativos o efectos llamativos que distraigan de la lectura operativa.\n\nLa densidad es estructurada y escaneable: cada vista prioriza KPIs tabulares, tablas densas pero respirables, insignias de estado inequívocas (Liberado, Bloqueado) y nodos interactivos de trazabilidad física. La personalidad visual transmite rigor técnico, calma operativa y respuesta inmediata en escenarios de almacén, laboratorio y emergencia QA.",
+    "keyCharacteristics": [
+      "Capas tonales suaves entre lienzo botánico y superficie blanca pura, sin gradientes ni ornamentos.",
+      "Semántica de color estricta donde verde, azul, ámbar y carmesí comunican estado operativo e inocuidad.",
+      "Tipografía geométrica limpia (Geist) combinada con monoespaciado técnico (Geist Mono) para códigos de lote, operaciones y reglas de negocio (RN-01 a RN-11).",
+      "Contraste alto pensado para lectura rápida en escritorio (Electron y navegador web) bajo estándares WCAG AA."
+    ],
+    "rules": [
+      { "name": "The Semantic Purity Rule", "body": "El carmesí (carmesi-recall) y el ámbar (ambar-alerta) nunca se usan como decoración; su presencia indica exclusivamente riesgo sanitario, bloqueo activo o advertencia operativa.", "section": "colors" },
+      { "name": "The Tonal Separation Rule", "body": "La jerarquía entre fondo y contenedor se resuelve alternando papel-botanico y superficie-blanca con borde de 1px (borde-salvia), sin gradientes ni rellenos saturados de fondo.", "section": "colors" },
+      { "name": "The Tabular Data Rule", "body": "Todo valor numérico en KPIs, tablas (td.num) y resúmenes (dd) debe usar font-variant-numeric: tabular-nums para alineación vertical exacta en auditorías.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Las tarjetas, tablas y alertas en reposo son completamente planas; las sombras se reservan exclusivamente para overlays modales, pestaña activa o retroalimentación puntual de hover/focus.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do mantener las superficies en capas tonales limpias (papel-botanico + superficie-blanca con borde 1px en borde-salvia).",
+      "Do usar Geist Mono con chips .op / .rn para códigos de lote y reglas de negocio, y tabular-nums en todo dato numérico.",
+      "Do respetar la codificación semántica estricta (carmesí solo para bloqueo/recall, ámbar solo para advertencia/tienda, verde para liberado/origen, azul para técnico/lab).",
+      "Do preservar el anillo :focus-visible de 3px y alturas mínimas de 40px en botones e inputs para cumplir WCAG AA."
+    ],
+    "donts": [
+      "Don't introducir gradientes decorativos, glassmorphism o sombras pesadas en tarjetas de contenido en reposo.",
+      "Don't mezclar colores de estado fuera de su significado operativo (por ejemplo, usar rojo/carmesí para botones de acción normal).",
+      "Don't omitir bordes en tarjetas o inputs sobre fondos claros; la delimitación nítida es parte esencial de la legibilidad del sistema."
+    ]
+  }
+}

@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { ArrowRight, FlaskConical, Snowflake, Store, Tractor, Truck } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  FlaskConical,
+  Snowflake,
+  Store,
+  Tractor,
+  Truck,
+} from 'lucide-react';
 import type { Expediente360Response } from '../../types/api';
 
 interface TraceGraphVisualizerProps {
@@ -12,6 +21,21 @@ interface GraphNodeInfo {
   category: string;
   variant: 'origin' | 'hot' | 'store' | 'lab' | 'default';
   details: Record<string, string | number>;
+}
+
+function getVariantStatusLabel(variant: GraphNodeInfo['variant']): string {
+  switch (variant) {
+    case 'hot':
+      return 'Riesgo';
+    case 'origin':
+      return 'Validado';
+    case 'lab':
+      return 'Lab';
+    case 'store':
+      return 'Destino';
+    default:
+      return 'Operativo';
+  }
 }
 
 export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expediente }) => {
@@ -146,34 +170,65 @@ export const TraceGraphVisualizer: React.FC<TraceGraphVisualizerProps> = ({ expe
         role="region"
         aria-label={`Grafo de trazabilidad del lote ${lote.codigo_lote}`}
       >
-        {nodes.map((node, idx) => (
-          <React.Fragment key={node.id}>
-            <button
-              type="button"
-              onClick={() => setSelectedNode(node)}
-              className={`node ${node.variant === 'default' ? '' : node.variant} mono`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                outline: selectedNode?.id === node.id ? '2px solid var(--secondary)' : undefined,
-              }}
-            >
-              {node.id === 'parcela' && <Tractor size={14} />}
-              {node.id === 'vehiculo' && <Truck size={14} />}
-              {node.id === 'cuarto' && <Snowflake size={14} />}
-              {node.id === 'lab' && <FlaskConical size={14} />}
-              {node.id === 'tiendas' && <Store size={14} />}
-              <span>{node.label}</span>
-            </button>
-            {idx < nodes.length - 1 && <ArrowRight size={15} aria-hidden="true" />}
-          </React.Fragment>
-        ))}
+        {nodes.map((node, idx) => {
+          const statusLabel = getVariantStatusLabel(node.variant);
+          return (
+            <React.Fragment key={node.id}>
+              <button
+                type="button"
+                onClick={() => setSelectedNode(node)}
+                aria-pressed={selectedNode?.id === node.id}
+                aria-label={`${node.category}: ${node.label} (${statusLabel})`}
+                className={`node ${node.variant === 'default' ? '' : node.variant} mono`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  outline: selectedNode?.id === node.id ? '2px solid var(--secondary)' : undefined,
+                }}
+              >
+                {node.id === 'parcela' && <Tractor size={14} aria-hidden="true" />}
+                {node.id === 'vehiculo' && <Truck size={14} aria-hidden="true" />}
+                {node.id === 'cuarto' && <Snowflake size={14} aria-hidden="true" />}
+                {node.id === 'lab' && <FlaskConical size={14} aria-hidden="true" />}
+                {node.id === 'tiendas' && <Store size={14} aria-hidden="true" />}
+                <span>{node.label}</span>
+                {node.variant === 'hot' && (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 3,
+                      fontSize: 11,
+                      fontFamily: 'Geist, system-ui, sans-serif',
+                    }}
+                  >
+                    <AlertTriangle size={12} aria-hidden="true" /> Riesgo
+                  </span>
+                )}
+                {node.variant === 'origin' && (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 3,
+                      fontSize: 11,
+                      fontFamily: 'Geist, system-ui, sans-serif',
+                    }}
+                  >
+                    <CheckCircle2 size={12} aria-hidden="true" /> Validado
+                  </span>
+                )}
+              </button>
+              {idx < nodes.length - 1 && <ArrowRight size={15} aria-hidden="true" />}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       <p className="lead" style={{ fontSize: 12, marginTop: 8 }}>
-        En rojo: nodos con riesgo sanitario o recursos compartidos. En verde: origen fitosanitario
-        validado.
+        Etiqueta <strong>Riesgo</strong> (carmesí): nodos con alerta sanitaria o recursos
+        compartidos. Etiqueta <strong>Validado</strong> (verde): origen fitosanitario verificado.
       </p>
 
       {selectedNode && (
