@@ -1,6 +1,6 @@
 # Entregable 8: Pruebas, Documentación y Despliegue (TrazaAgro)
 
-Este documento concentra la estrategia integral de validación, la evidencia de las pruebas obligatorias de integración, la evaluación de rendimiento en dos niveles de volumen con tres corridas independientes y el manual paso a paso de despliegue y ejecución de **TrazaAgro**, cumpliendo con las secciones 7.8, 9 y 11 de la guía oficial del proyecto (`docs/guia-proyecto/guia-proyecto.md`).
+Este documento concentra la estrategia integral de validación, la evidencia de las pruebas obligatorias de integración, la evaluación de rendimiento en dos niveles de volumen con tres corridas independientes y el manual paso a paso de despliegue y ejecución de **TrazaAgro**, cumpliendo con las secciones 7.8, 9 y 11 de la guía oficial del proyecto (`docs/Guia_Proyecto_Final_Bases_Datos.pdf`).
 
 ## 1. Arquitectura de Validación y Cobertura de los 7 Ejes Obligatorios
 

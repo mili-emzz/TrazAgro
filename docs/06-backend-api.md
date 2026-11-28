@@ -1,6 +1,6 @@
 # Entregable 6: Backend y API (TrazaAgro)
 
-Este documento describe la implementación de la capa de servidor y la API REST de **TrazaAgro**, cumpliendo con los requisitos de la sección 7.6 de la guía oficial (`docs/guia-proyecto/guia-proyecto.md`) y los contratos definidos en `docs/03-arquitectura.md`.
+Este documento describe la implementación de la capa de servidor y la API REST de **TrazaAgro**, cumpliendo con los requisitos de la sección 7.6 de la guía oficial (`docs/Guia_Proyecto_Final_Bases_Datos.pdf`) y los contratos definidos en `docs/03-arquitectura.md`.
 
 ## 1. Estilo de API y Justificación Tecnológica
 
