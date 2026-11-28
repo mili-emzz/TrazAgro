@@ -1,6 +1,6 @@
 # Entregable 7: Aplicación e Integración (TrazaAgro)
 
-Este documento describe la interfaz gráfica unificada de **TrazaAgro** y la forma en que integra los flujos de **PostgreSQL 16**, **MongoDB 7** y **Neo4j 5** a través de la API REST del backend, dando cumplimiento a la sección 7.7 de la guía oficial (`docs/guia-proyecto/guia-proyecto.md`).
+Este documento describe la interfaz gráfica unificada de **TrazaAgro** y la forma en que integra los flujos de **PostgreSQL 16**, **MongoDB 7** y **Neo4j 5** a través de la API REST del backend, dando cumplimiento a la sección 7.7 de la guía oficial (`docs/Guia_Proyecto_Final_Bases_Datos.pdf`).
 
 ## 1. Arquitectura de la Aplicación Cliente (Escritorio Electron + Web)
 
